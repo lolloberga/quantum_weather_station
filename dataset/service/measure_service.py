@@ -4,9 +4,9 @@ from Crypto.Hash import SHA256
 from Crypto.Signature import pkcs1_15
 import base64
 from enum import IntEnum
-from db_lib.utils import unix_to_datetime, object_as_dict
+from utils.db_utils import unix_to_datetime, object_as_dict
 
-from db_lib.models import (
+from dataset.model import (
     Board,
     BoardExperiment,
     LogicalSensor,
@@ -14,7 +14,7 @@ from db_lib.models import (
     PhysicalSensor
 )
 
-from db_lib.views import FiveMinAvgMeasure
+from dataset.view.five_min_avg_measure import FiveMinAvgMeasure
 import struct
 from sqlalchemy import func, or_, and_, types
 from sqlalchemy.sql import expression

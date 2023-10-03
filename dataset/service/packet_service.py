@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from db_lib.models import Packet, Measure
-from db_lib.services.packet_measure_service import PacketMeasureService
-from db_lib.services.measure_service import MeasureService
+from dataset.model import Packet, Measure
+from dataset.service.packet_measure_service import PacketMeasureService
+from dataset.service.measure_service import MeasureService
 from sqlalchemy import select
 from typing import List, Dict, Any
 

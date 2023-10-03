@@ -1,7 +1,7 @@
-from db_lib.database import Base
+from dataset.model.base.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, DateTime, Integer, ForeignKey, String
-from db_lib.models.logical_sensor import LogicalSensor
+from dataset.model.logical_sensor import LogicalSensor
 from sqlalchemy.dialects.mysql import DATETIME
 
 

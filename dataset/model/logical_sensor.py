@@ -1,7 +1,7 @@
-from db_lib.database import Base
+from dataset.model.base.database import Base
 from sqlalchemy import Column, Integer, ForeignKey, String, Time
-from db_lib.models.unit_of_measure import UnitOfMeasure
-from db_lib.models.measure import Measure
+from dataset.model.unit_of_measure import UnitOfMeasure
+from dataset.model.measure import Measure
 from sqlalchemy.dialects.mysql import SMALLINT
 
 

@@ -1,7 +1,7 @@
-from db_lib.database import Base
+from dataset.model.base.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, DateTime, Integer, ForeignKey, UniqueConstraint
-from db_lib.models.physical_sensor import PhysicalSensor
+from dataset.model.physical_sensor import PhysicalSensor
 from sqlalchemy.dialects.mysql import SMALLINT, DATETIME
 
 

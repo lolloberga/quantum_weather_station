@@ -1,10 +1,7 @@
-from db_lib.db_interface import DBInterface, SQLiteUrl, MySQLUrl
-from db_lib.services import BoardService, LogicalSensorService, UnitOfMeasureService
-from db_lib.models import Board, LogicalSensor, UnitOfMeasure
+from dataset.interface.db_interface import DBInterface, SQLiteUrl, MySQLUrl
+from dataset.service import BoardService, LogicalSensorService, UnitOfMeasureService
+from dataset.model import Board, LogicalSensor, UnitOfMeasure
 import json
-import sshtunnel
-from sshtunnel import SSHTunnelForwarder
-import logging
 
 from sqlalchemy import create_engine
 
@@ -13,35 +10,14 @@ from sqlalchemy import create_engine
 # THIS IS A GARBAGE SCRIPT USED TO CRATE A MOCKUP DB
 ########
 
-def open_ssh_tunnel(verbose=False):
-    """Open an SSH tunnel and connect using a username and password.
-
-    :param verbose: Set to True to show logging
-    :return tunnel: Global SSH tunnel connection
-    """
-    if verbose:
-        sshtunnel.DEFAULT_LOGLEVEL = logging.DEBUG
-
-    global tunnel
-    tunnel = SSHTunnelForwarder(
-        ("baraddur.polito.it", 22),
-        ssh_username="lorenzo",
-        ssh_password="B3rg4d4n0!",
-        remote_bind_address=('127.0.0.1', 3306)
-    )
-    tunnel.start()
-
-
 def main():
-
-    open_ssh_tunnel(True)
 
     try:
         # connect to db
         # url = SQLiteUrl("test_new.db").get_url()
         # url = MySQLUrl("weather_station_v2", "weather_station", "5NcmIt%Gk6&X6VH8dP", "geonosis.polito.it", tunnel.local_bind_port).get_url()
-        url = MySQLUrl("weather_station_v2", "weather_station", "5NcmIt%Gk6&X6VH8dP", "192.168.16.117",
-                       tunnel.local_bind_port).get_url()
+        url = MySQLUrl("weather_station_v2", "weather_station_local", "5NcmIt%Gk6&X6VH8dP", "localhost",
+                       3306).get_url()
         db = DBInterface(url, echo=True)
 
         # create database
@@ -92,7 +68,6 @@ def main():
             session.commit()
     except Exception as e:
         print(e)
-        tunnel.close()
 
 
 if __name__ == "__main__":

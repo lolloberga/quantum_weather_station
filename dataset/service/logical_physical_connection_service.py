@@ -1,8 +1,8 @@
 from typing import List
 from sqlalchemy.orm import Session
-from db_lib.models.board import Board
-from db_lib.models.logical_physical_connection import LogicalPhysicalConnection
-from db_lib.models.physical_sensor import PhysicalSensor
+from dataset.model.board import Board
+from dataset.model.logical_physical_connection import LogicalPhysicalConnection
+from dataset.model.physical_sensor import PhysicalSensor
 
 
 class LogicalPhysicalConnectionService:

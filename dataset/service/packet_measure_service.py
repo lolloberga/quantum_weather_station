@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from db_lib.models import Packet, PacketMeasure, PacketConnection, PacketSummary
-from db_lib.services.packet_summary_service import PacketSummaryService
+from dataset.model import Packet, PacketMeasure, PacketConnection, PacketSummary
+from dataset.service.packet_summary_service import PacketSummaryService
 from sqlalchemy.sql.selectable import Select
 from sqlalchemy import insert, select, and_
 from typing import List, Dict, Any

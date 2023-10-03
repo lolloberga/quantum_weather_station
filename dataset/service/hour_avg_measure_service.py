@@ -1,6 +1,6 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from db_lib.views.hour_avg_measure import HourAvgMeasure
+from dataset.view.hour_avg_measure import HourAvgMeasure
 
 
 class HourAvgMeasureService:

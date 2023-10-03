@@ -1,5 +1,5 @@
 from typing import List
-from db_lib.models.param_type import ParamType
+from dataset.model.param_type import ParamType
 from sqlalchemy.orm import Session
 
 

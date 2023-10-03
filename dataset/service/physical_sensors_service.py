@@ -1,6 +1,6 @@
 from typing import List
-from db_lib.models.logical_sensor import LogicalSensor
-from db_lib.models.physical_sensor import PhysicalSensor
+from dataset.model.logical_sensor import LogicalSensor
+from dataset.model.physical_sensor import PhysicalSensor
 from sqlalchemy.orm import Session
 
 

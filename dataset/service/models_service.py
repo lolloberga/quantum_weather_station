@@ -1,5 +1,5 @@
 from typing import List
-from db_lib.models.vendor_model import VendorModel
+from dataset.model.vendor_model import VendorModel
 from sqlalchemy.orm import Session
 
 

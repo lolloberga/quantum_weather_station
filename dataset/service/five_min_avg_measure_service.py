@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from db_lib.views.five_min_avg_measure import FiveMinAvgMeasure
+from dataset.view.five_min_avg_measure import FiveMinAvgMeasure
 from sqlalchemy import func
 
 

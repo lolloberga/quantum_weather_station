@@ -1,8 +1,8 @@
-from db_lib.database import Base
+from dataset.model.base.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, ForeignKey, String, UniqueConstraint
-from db_lib.models.board_experiment import BoardExperiment
-from db_lib.models.board_config import BoardConfig
+from dataset.model.board_experiment import BoardExperiment
+from dataset.model.board_config import BoardConfig
 
 
 class Board(Base):

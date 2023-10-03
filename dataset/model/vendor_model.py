@@ -1,8 +1,8 @@
-from db_lib.database import Base
+from dataset.model.base.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, BigInteger, Integer, String
-from db_lib.models.board import Board
-from db_lib.models.physical_sensor import PhysicalSensor
+from dataset.model.board import Board
+from dataset.model.physical_sensor import PhysicalSensor
 
 
 class VendorModel(Base):
