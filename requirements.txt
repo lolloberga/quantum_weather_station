@@ -1,0 +1,6 @@
+SQLAlchemy~=2.0
+geopy~=2.3.0
+pycryptodome~=3.15.0
+sqlalchemy-utils
+mysql-connector-python
+sshtunnel
