@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from dataset.model import Packet, Measure
+from dataset.model.packet import Packet
+from dataset.model.measure import Measure
 from dataset.service.packet_measure_service import PacketMeasureService
 from dataset.service.measure_service import MeasureService
 from sqlalchemy import select

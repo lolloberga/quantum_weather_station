@@ -1,6 +1,10 @@
 from dataset.interface.db_interface import DBInterface, SQLiteUrl, MySQLUrl
-from dataset.service import BoardService, LogicalSensorService, UnitOfMeasureService
-from dataset.model import Board, LogicalSensor, UnitOfMeasure
+from dataset.service.boards_service import BoardService
+from dataset.service.logical_sensors_service import LogicalSensorService
+from dataset.service.unit_of_measure_service import UnitOfMeasureService
+from dataset.model.board import Board
+from dataset.model.logical_sensor import LogicalSensor
+from dataset.model.unit_of_measure import UnitOfMeasure
 import json
 
 from sqlalchemy import create_engine
@@ -14,8 +18,6 @@ def main():
 
     try:
         # connect to db
-        # url = SQLiteUrl("test_new.db").get_url()
-        # url = MySQLUrl("weather_station_v2", "weather_station", "5NcmIt%Gk6&X6VH8dP", "geonosis.polito.it", tunnel.local_bind_port).get_url()
         url = MySQLUrl("weather_station_v2", "weather_station_local", "5NcmIt%Gk6&X6VH8dP", "localhost",
                        3306).get_url()
         db = DBInterface(url, echo=True)
