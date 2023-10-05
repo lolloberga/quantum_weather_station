@@ -20,7 +20,7 @@ ROOT_DIR = os.path.dirname(
 
 # connect to db
 # url = SQLiteUrl("test_new.db").get_url()
-url = MySQLUrl("weather_station_v2", "weather_station_local", "5NcmIt%Gk6&X6VH8dP", "localhost", 3306).get_url()
+url = MySQLUrl("weather_station_v2", "weather_station_local", "5NcmIt%Gk6&X6VH8dP", "127.0.0.1", 3306).get_url()
 db = DBInterface(url, echo=True)
 
 # create database

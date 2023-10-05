@@ -1,7 +1,6 @@
 from dataset.model.base.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, BigInteger, Integer, String
-from dataset.model.board import Board
 from dataset.model.physical_sensor import PhysicalSensor
 
 
