@@ -20,5 +20,3 @@ class BoardConfig(Base):
     paramValue = Column(String(60), nullable=False)
 
 UniqueConstraint(BoardConfig.boardId, BoardConfig.paramId, BoardConfig.timestamp)
-
-    
