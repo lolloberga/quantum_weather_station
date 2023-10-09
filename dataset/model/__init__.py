@@ -6,6 +6,7 @@ from dataset.model.board import Board
 from dataset.model.experiment import Experiment
 from dataset.model.logical_sensor import LogicalSensor
 from dataset.model.measure import Measure
+from dataset.model.measure_temporary import MeasureTemporary
 from dataset.model.param_type import ParamType
 from dataset.model.physical_sensor import PhysicalSensor
 from dataset.model.unit_of_measure import UnitOfMeasure
