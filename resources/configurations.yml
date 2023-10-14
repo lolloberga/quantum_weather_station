@@ -10,6 +10,7 @@ resouces:
 
 dataset:
   path: dataset/download
+  download_repositories: resources/download_dataset_map.json
   folder_name_prefix: board_
   board_config_name: board.json
   sensor_name_prefix: s
