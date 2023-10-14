@@ -3,3 +3,4 @@
 /dataset/download/
 /__pycache__/
 */__pycache__/*
+/dataset/script/__pycache__/
