@@ -6,3 +6,4 @@ mysql-connector-python
 flask_sqlalchemy
 pyyaml
 tqdm
+requests
