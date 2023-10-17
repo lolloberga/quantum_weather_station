@@ -43,7 +43,7 @@ def main():
 
     # download dataset
     dd = DownloadDataset()
-    #dd.download_with_map_file()
+    dd.download_with_map_file()
 
     # connect to db
     url = MySQLUrl(cfg['database']['db_name'], cfg['database']['user'], cfg['database']['password'], cfg['database']['url'], cfg['database']['port']).get_url()
@@ -72,7 +72,7 @@ def main():
                                 if not _find_measures_checkpoint(UPLOAD_MEASURES_CHECKPOINT_PATH, board_number, sensor_id):
                                     # load into temporary table
                                     print(f'Upload sensor {sensor_id}({measure})')
-                                    uploaded_rows = _load_to_temp_table(session, csv_file.path, sensor_id, UPLOAD_MEASURES_CHECKPOINT_PATH, skip_first=True)
+                                    uploaded_rows = _load_to_temp_table(session, csv_file.path, sensor_id, skip_first=True)
                                     # upadte checkpoints file
                                     points = {
                                         "board_id": board_number,
@@ -94,7 +94,7 @@ def main():
     print('Finish push into temporary measures')
 
 
-def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, checkpoint_path: str, skip_first:bool = True) -> int:
+def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, skip_first:bool = True) -> int:
     with open(csv_file) as f:
         csv_reader = csv.reader(f, delimiter=',')
         line_count = 0

@@ -28,7 +28,7 @@ class DownloadDataset:
         with open(self._map) as f:
             map_file = json.load(f)
             for download_conf in map_file:
-                if 'id' in download_conf and 'repository' in download_conf and isinstance(download_conf['repository'], dict):
+                if 'id' in download_conf and 'repository' in download_conf and isinstance(download_conf['repository'], dict) and download_conf['enable'] == True:
                     # create a folder if not exists
                     download_folder = os.path.join(self._default_path, download_conf['id'])
                     if not os.path.exists(download_folder):
