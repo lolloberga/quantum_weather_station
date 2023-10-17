@@ -36,4 +36,6 @@ class ConfigParser:
 
         self._consts['BOARD_CONFIG_FILE'] = os.path.join(self._consts['RESOURCE_PATH'], self.config['dataset']['board_config_name']) if self.config['dataset']['board_config_name'] is not None else os.path.join(self._consts['RESOURCE_PATH'], 'board.json')
 
-        self._consts['DOWNLOAD_DATASET_MAP'] = os.path.join(ROOT_DIR, self.config['dataset']['download_repositories']) if self.config['dataset']['download_repositories'] is not None else os.path.join(ROOT_DIR, "resources", "download_dataset_map.json")
+        self._consts['DOWNLOAD_DATASET_MAP'] = os.path.join(ROOT_DIR, self.config['dataset']['download_repositories']) if self.config['dataset']['download_repositories'] is not None else os.path.join(self._consts['RESOURCE_PATH'], "download_dataset_map.json")
+
+        self._consts['UPLOAD_CHECKPOINT_PATH'] = os.path.join(ROOT_DIR, self.config['dataset']['checkpoint_path']) if self.config['dataset']['checkpoint_path'] is not None else self._consts['RESOURCE_PATH']

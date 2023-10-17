@@ -14,3 +14,4 @@ dataset:
   folder_name_prefix: board_
   board_config_name: board.json
   sensor_name_prefix: s
+  checkpoint_path: resources/

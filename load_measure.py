@@ -8,6 +8,7 @@ from tqdm import tqdm
 import os
 import json
 import csv
+from datetime import datetime
 
 ROOT_DIR = os.path.dirname(
     os.path.abspath(__file__)
@@ -31,6 +32,7 @@ def main():
     FOLDER_NAME_PREFIX = cfg.consts['FOLDER_NAME_PREFIX']
     SENSOR_NAME_PREFIX = cfg.consts['SENSOR_NAME_PREFIX']
     BOARD_CONFIG_FILE = cfg.consts['BOARD_CONFIG_FILE']
+    UPLOAD_MEASURES_CHECKPOINT_PATH = cfg.consts['UPLOAD_CHECKPOINT_PATH']
 
     if not os.path.exists(DATASET_PATH) or os.path.isfile(DATASET_PATH):
         print('Download path not available')
@@ -41,7 +43,7 @@ def main():
 
     # download dataset
     dd = DownloadDataset()
-    dd.download_with_map_file()
+    #dd.download_with_map_file()
 
     # connect to db
     url = MySQLUrl(cfg['database']['db_name'], cfg['database']['user'], cfg['database']['password'], cfg['database']['url'], cfg['database']['port']).get_url()
@@ -66,10 +68,25 @@ def main():
                             # check if sensor_id is inside the board
                             measure = _check_sensor_id_into_board(sensor_id, board)
                             if measure is not None:
-                                # load into temporary table
-                                print(f'Upload sensor {sensor_id}({measure})')
-                                _load_to_temp_table(session, csv_file.path, sensor_id, skip_first=True)
-                                session.commit()
+                                # check if the CSV was already uploaded
+                                if not _find_measures_checkpoint(UPLOAD_MEASURES_CHECKPOINT_PATH, board_number, sensor_id):
+                                    # load into temporary table
+                                    print(f'Upload sensor {sensor_id}({measure})')
+                                    uploaded_rows = _load_to_temp_table(session, csv_file.path, sensor_id, UPLOAD_MEASURES_CHECKPOINT_PATH, skip_first=True)
+                                    # upadte checkpoints file
+                                    points = {
+                                        "board_id": board_number,
+                                        "sensor_id": sensor_id,
+                                        "file_name": csv_file.name,
+                                        "file_path": csv_file.path,
+                                        "date_uploaded": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                        "uploaded_rows": uploaded_rows
+                                    }
+                                    _update_measures_checkpoint_file(UPLOAD_MEASURES_CHECKPOINT_PATH, points)
+                                    # commit on database
+                                    session.commit()
+                                else:
+                                    print(f'Sensor {sensor_id} in Board {board_number} already uploaded ({csv_file.name})')
                         except ValueError:
                             continue
                 session.commit()
@@ -77,7 +94,7 @@ def main():
     print('Finish push into temporary measures')
 
 
-def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, skip_first:bool = True) -> None:
+def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, checkpoint_path: str, skip_first:bool = True) -> int:
     with open(csv_file) as f:
         csv_reader = csv.reader(f, delimiter=',')
         line_count = 0
@@ -91,10 +108,38 @@ def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, skip_fir
                     value = float(row[1])
                     mt = MeasureTemporary(sensorId=sensor_id, timestamp=timestamp, data=value)
                     session.add(mt)
-
         print(f'- Loaded {line_count} rows')
+        return line_count
 
-    
+def _find_measures_checkpoint(path: str, board_id: int, sensor_id: int) -> bool:
+    checkpoints = _load_upload_measures_checkpoint(path)
+    for point in checkpoints:
+        if point['board_id'] == board_id and point['sensor_id'] == sensor_id:
+            return True
+    return False
+
+
+def _update_measures_checkpoint_file(path: str, point: dict) -> None:
+    checkpoints = _load_upload_measures_checkpoint(path)
+    checkpoints.append(point)
+    with open(os.path.join(path, 'upload_measures_checkpoint.json'), 'w', encoding='utf-8') as f:
+        json.dump(checkpoints, f, ensure_ascii=False, indent=4)
+
+
+def _load_upload_measures_checkpoint(path: str) -> list:
+    checkpoint_file_path = os.path.join(path, 'upload_measures_checkpoint.json')
+    if not os.path.exists(checkpoint_file_path):
+        open(checkpoint_file_path, "w")
+        checkpoint_file = []
+    else:
+        f = open(checkpoint_file_path)
+        try:
+            checkpoint_file = json.load(f)
+        except:
+            checkpoint_file = []
+    return checkpoint_file
+
+
 def _find_board_by_id(board_config_file: str, id: int) -> dict:
     with open(board_config_file) as f:
         board_confs = json.load(f)
@@ -103,12 +148,14 @@ def _find_board_by_id(board_config_file: str, id: int) -> dict:
                 return conf
     return None
 
+
 def _check_sensor_id_into_board(sensor_id: int, board: dict) -> str:
     for measure in MEASURES.keys():
         if measure in board:
             if sensor_id in board[measure]:
                 return measure
     return None
+
 
 if __name__ == "__main__":
     main()
