@@ -9,7 +9,7 @@ resouces:
   path: resources
 
 dataset:
-  path: dataset/download
+  path: /dev/quantum_weather_station/download
   download_repositories: resources/download_dataset_map.json
   folder_name_prefix: board_
   board_config_name: board.json

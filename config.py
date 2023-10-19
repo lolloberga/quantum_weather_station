@@ -30,7 +30,7 @@ class ConfigParser:
         self._consts = dict()
 
         self._consts['RESOURCE_PATH'] = os.path.join(ROOT_DIR, self.config['resouces']['path']) if self.config['resouces']['path'] is not None else os.path.join(ROOT_DIR, "resources")
-        self._consts['DATASET_PATH'] = os.path.join(ROOT_DIR, self.config['dataset']['path'])
+        self._consts['DATASET_PATH'] = self.config['dataset']['path']
         self._consts['FOLDER_NAME_PREFIX'] = self.config['dataset']['folder_name_prefix'] if self.config['dataset']['folder_name_prefix'] is not None else 'board_'
         self._consts['SENSOR_NAME_PREFIX'] = self.config['dataset']['sensor_name_prefix'] if self.config['dataset']['sensor_name_prefix'] is not None else 's'
 
