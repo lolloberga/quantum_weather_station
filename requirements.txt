@@ -4,3 +4,6 @@ pycryptodome~=3.15.0
 sqlalchemy-utils
 mysql-connector-python
 flask_sqlalchemy
+pyyaml
+tqdm
+requests

@@ -1,4 +1,5 @@
 from dataset.model.base.database import Base
+from dataset.model.vendor_model import VendorModel
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, ForeignKey, String, UniqueConstraint
 from dataset.model.board_experiment import BoardExperiment

@@ -1,0 +1,17 @@
+database:
+  user: weather_station_local
+  password: 5NcmIt%Gk6&X6VH8dP
+  url: 127.0.0.1
+  port: 3306
+  db_name: weather_station_v2
+
+resouces:
+  path: resources
+
+dataset:
+  path: /dev/quantum_weather_station/download
+  download_repositories: resources/download_dataset_map.json
+  folder_name_prefix: board_
+  board_config_name: board.json
+  sensor_name_prefix: s
+  checkpoint_path: resources/
