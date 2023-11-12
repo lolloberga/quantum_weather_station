@@ -7,3 +7,7 @@ flask_sqlalchemy
 pyyaml
 tqdm
 requests
+pandas
+matplotlib
+numpy
+seaborn
