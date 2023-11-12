@@ -5,3 +5,4 @@
 */__pycache__/*
 /dataset/script/__pycache__/
 resources/upload_measures_checkpoint.json
+resources/dataset/*
