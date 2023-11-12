@@ -11,3 +11,6 @@ pandas
 matplotlib
 numpy
 seaborn
+torch
+torchvision
+sklearn
