@@ -22,7 +22,7 @@ T = 5  # Number of timesteps to look while predicting
 INPUT_SIZE = HIDDEN_SIZE = 64  # a time window of 64-hour
 OUTPUT_SIZE = 1
 LEARNING_RATE = 0.01
-NUM_EPOCHS = 750
+NUM_EPOCHS = 400
 
 
 class MyLSTM(nn.Module):
@@ -140,8 +140,11 @@ def build_dataset_2(cfg: ConfigParser) -> tuple:
 
     df = df_sensors.merge(df_arpa, left_on=['timestamp'], right_on=['timestamp'])
     df.rename(columns={"data": "x", "pm25": "y"}, inplace=True)
+    # Add month column and transform it into one-hot-encording
+    df['month'] = df.timestamp.dt.month
+    df = pd.get_dummies(df, columns = ['month'])
 
-    input_data = df.drop(['timestamp'], axis=1)
+    input_data = df.drop(['timestamp', 'y'], axis=1)
     targets = df.y.values
     D = input_data.shape[1] # Dimensionality of the input
     N = len(input_data) - T
