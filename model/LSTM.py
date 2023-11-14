@@ -1,4 +1,4 @@
-from config import ConfigParser
+#from config import ConfigParser
 import os
 import pandas as pd
 import numpy as np
@@ -93,13 +93,13 @@ def get_period_of_the_day(timestamp):
         return 4
 
 
-def build_dataset(cfg: ConfigParser) -> tuple:
+def build_dataset() -> tuple:#(cfg: ConfigParser) -> tuple:
     df_sensors = pd.read_csv(
-        os.path.join(os.getcwd(), cfg.consts['DATASET_PATH'].replace('/', '', 1), 'unique_timeserie_by_median.csv'))
+        os.path.join(os.getcwd(), 'resources', 'dataset', 'unique_timeserie_by_median.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
-    df_arpa = build_arpa_dataset(os.path.join(os.getcwd(), cfg.consts['DATASET_PATH'].replace('/', '', 1), 'arpa',
+    df_arpa = build_arpa_dataset(os.path.join(os.getcwd(), 'resources', 'dataset', 'arpa',
                                               'Dati PM10_PM2.5_2020-2022.csv')
-                                 , os.path.join(os.getcwd(), cfg.consts['DATASET_PATH'].replace('/', '', 1), 'arpa',
+                                 , os.path.join(os.getcwd(), 'resources', 'dataset', 'arpa',
                                                 'Torino-Rubino_Polveri-sottili_2023-01-01_2023-06-30.csv'))
 
     df = df_sensors.merge(df_arpa, left_on=['timestamp'], right_on=['timestamp'])
@@ -142,9 +142,9 @@ def build_dataset(cfg: ConfigParser) -> tuple:
 
 def main():
     # Get project configurations
-    cfg = ConfigParser()
+    #cfg = ConfigParser()
     # Prepare dataset
-    X_train, X_test, y_train, y_test, D, df = build_dataset(cfg)
+    X_train, X_test, y_train, y_test, D, df = build_dataset()#build_dataset(cfg)
 
     # Instantiate the model
     model = MyLSTM(D, HIDDEN_SIZE, 2, OUTPUT_SIZE)
