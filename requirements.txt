@@ -13,4 +13,4 @@ numpy
 seaborn
 torch
 torchvision
-sklearn
+scikit-learn
