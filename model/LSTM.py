@@ -21,7 +21,7 @@ T = 5  # Number of hours to look while predicting
 HIDDEN_SIZE = 512
 OUTPUT_SIZE = 1
 LEARNING_RATE = 0.01
-NUM_EPOCHS = 5
+NUM_EPOCHS = 400
 
 
 class MyLSTM(nn.Module):
@@ -182,7 +182,7 @@ def main():
         #        f'At epoch {epoch + 1} of {NUM_EPOCHS}, Train Loss: {loss.item():.3f}, Test Loss: {test_loss.item():.3f}')
 
     # Save the model at the end of the training (for future inference)
-    torch.save(model.state_dict(), os.path.join(os.getcwd(), 'model', 'checkpoints', 'lstm_approach_1.pt'))
+    torch.save(model.state_dict(), os.path.join(os.getcwd(), 'model', 'checkpoints', f"lstm_approach_1_{datetime.today().strftime('%Y-%m-%d_%H-%M')}.pt"))
     writer.flush()
     writer.close()
 
@@ -194,7 +194,7 @@ def main():
     ax.set_title(f'Train loss at each iteration - {NUM_EPOCHS} epochs - T = {T}')
     ax.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f'LSTM_approach_1 - Train and test loss.png'))
+    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f"LSTM_approach_1 - Train and test loss - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
 
     # Plot the model performance
     test_target = y_test.cpu().detach().numpy()
@@ -218,7 +218,7 @@ def main():
     ax.set_title(f'LSTM Performance - {NUM_EPOCHS} epochs - T = {T}')
     ax.legend(loc='lower right')
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f'LSTM_approach_1 - Train and test loss.png'))
+    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f"LSTM_approach_1 - Train and test loss - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
 
 
 main()
