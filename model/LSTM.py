@@ -4,11 +4,10 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.utils.data import DataLoader, SequentialSampler
+from tqdm import tqdm
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from torch.utils.tensorboard import SummaryWriter
+from datetime import datetime
 
 # Define constants
 torch.manual_seed(1)
@@ -16,39 +15,19 @@ RANDOM_STATE = 42
 TRAIN_SIZE = 0.8
 START_DATE_BOARD = '2022-11-03'
 END_DATE_BOARD = '2023-06-15'
-T = 5  # Number of timesteps to look while predicting
+T = 5  # Number of hours to look while predicting
 
 # Define the hyperparameters
-INPUT_SIZE = HIDDEN_SIZE = 64  # a time window of 64-hour
+HIDDEN_SIZE = 512
 OUTPUT_SIZE = 1
 LEARNING_RATE = 0.01
-NUM_EPOCHS = 400
+NUM_EPOCHS = 5
 
 
 class MyLSTM(nn.Module):
 
-    def __init__(self, input_size, hidden_size, output_size):
-        super().__init__()
-        self.hidden_size = hidden_size
-        self.lstm = nn.LSTM(input_size, hidden_size)
-        self.fc = nn.Linear(hidden_size, output_size)
-
-    def forward(self, input):
-        batch_size = input.size(0)
-        hidden = self.init_hidden(batch_size)
-        lstm_out, hidden = self.lstm(input.view(len(input), batch_size, -1), hidden)
-        output = self.fc(lstm_out[-1])
-        return output
-
-    def init_hidden(self, batch_size):
-        return (torch.zeros(1, batch_size, self.hidden_size),
-                torch.zeros(1, batch_size, self.hidden_size))
-
-
-class MyLSTM_2(nn.Module):
-
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):
-        super(MyLSTM_2, self).__init__()
+        super(MyLSTM, self).__init__()
         self.M = hidden_dim
         self.L = layer_dim
 
@@ -102,34 +81,19 @@ def build_arpa_dataset(arpa_2022: str, arpa_2023: str) -> pd.DataFrame:
     return df_arpa
 
 
+def get_period_of_the_day(timestamp):
+    h = timestamp.hour
+    if 0 <= h <= 6:
+        return 1
+    elif 7 <= h <= 12:
+        return 2
+    elif 13 <= h <= 18:
+        return 3
+    else:
+        return 4
+
+
 def build_dataset(cfg: ConfigParser) -> tuple:
-    df_sensors = pd.read_csv(
-        os.path.join(os.getcwd(), cfg.consts['DATASET_PATH'].replace('/', '', 1), 'unique_timeserie_by_median.csv'))
-    df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
-    df_arpa = build_arpa_dataset(os.path.join(os.getcwd(), cfg.consts['DATASET_PATH'].replace('/', '', 1), 'arpa',
-                                              'Dati PM10_PM2.5_2020-2022.csv')
-                                 , os.path.join(os.getcwd(), cfg.consts['DATASET_PATH'].replace('/', '', 1), 'arpa',
-                                                'Torino-Rubino_Polveri-sottili_2023-01-01_2023-06-30.csv'))
-
-    df = df_sensors.merge(df_arpa, left_on=['timestamp'], right_on=['timestamp'])
-    df.rename(columns={"data": "x", "pm25": "y"}, inplace=True)
-
-    X_train, X_test, y_train, y_test = train_test_split(df.x.values, df.y.values,
-                                                        train_size=TRAIN_SIZE, shuffle=False, random_state=RANDOM_STATE)
-    # train_data = df.x.values[: int(len(df.x.values) * TRAIN_TEST_SIZE)]
-    # test_data = df.x.values[int(len(df.x.values) * TRAIN_TEST_SIZE):]
-
-    # Convert the time series data to PyTorch tensors
-    X_train = torch.FloatTensor(X_train).unsqueeze(1)
-    X_test = torch.FloatTensor(X_test).unsqueeze(1)
-    y_train = torch.FloatTensor(y_train).unsqueeze(1)
-    y_test = torch.FloatTensor(y_test).unsqueeze(1)
-    # train_data = torch.FloatTensor(train_data).unsqueeze(1)
-    # test_data = torch.FloatTensor(test_data).unsqueeze(1)
-    return X_train, X_test, y_train, y_test
-
-
-def build_dataset_2(cfg: ConfigParser) -> tuple:
     df_sensors = pd.read_csv(
         os.path.join(os.getcwd(), cfg.consts['DATASET_PATH'].replace('/', '', 1), 'unique_timeserie_by_median.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
@@ -142,11 +106,13 @@ def build_dataset_2(cfg: ConfigParser) -> tuple:
     df.rename(columns={"data": "x", "pm25": "y"}, inplace=True)
     # Add month column and transform it into one-hot-encording
     df['month'] = df.timestamp.dt.month
-    df = pd.get_dummies(df, columns = ['month'])
+    df['period_day'] = df['timestamp'].map(get_period_of_the_day)
+    # Transform some features into one-hot encoding
+    df = pd.get_dummies(df, columns=['month', 'period_day'])
 
     input_data = df.drop(['timestamp', 'y'], axis=1)
     targets = df.y.values
-    D = input_data.shape[1] # Dimensionality of the input
+    D = input_data.shape[1]  # Dimensionality of the input
     N = len(input_data) - T
 
     train_size = int(len(input_data) * TRAIN_SIZE)
@@ -154,16 +120,16 @@ def build_dataset_2(cfg: ConfigParser) -> tuple:
     X_train = np.zeros((train_size, T, D))
     y_train = np.zeros((train_size, 1))
     for t in range(train_size):
-        X_train[t, :, :] = input_data[t:t+T]
-        y_train[t] = (targets[t+T])
+        X_train[t, :, :] = input_data[t:t + T]
+        y_train[t] = (targets[t + T])
 
     # Preparing X_test and y_test
     X_test = np.zeros((N - train_size, T, D))
     y_test = np.zeros((N - train_size, 1))
     for i in range(N - train_size):
         t = i + train_size
-        X_test[i, :, :] = input_data[t:t+T]
-        y_test[i] = (targets[t+T])
+        X_test[i, :, :] = input_data[t:t + T]
+        y_test[i] = (targets[t + T])
 
     # Make inputs and targets
     X_train = torch.from_numpy(X_train.astype(np.float32))
@@ -171,84 +137,88 @@ def build_dataset_2(cfg: ConfigParser) -> tuple:
     X_test = torch.from_numpy(X_test.astype(np.float32))
     y_test = torch.from_numpy(y_test.astype(np.float32))
 
-    return X_train, X_test, y_train, y_test, D
+    return X_train, X_test, y_train, y_test, D, df
 
 
 def main():
     # Get project configurations
     cfg = ConfigParser()
     # Prepare dataset
-    X_train, X_test, y_train, y_test, D = build_dataset_2(cfg)
+    X_train, X_test, y_train, y_test, D, df = build_dataset(cfg)
 
     # Instantiate the model
-    model = MyLSTM_2(D, 512, 2, 1)
+    model = MyLSTM(D, HIDDEN_SIZE, 2, OUTPUT_SIZE)
     # Define the loss function and optimizer
     criterion = nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4)
     train_losses = np.zeros(NUM_EPOCHS)
     test_losses = np.zeros(NUM_EPOCHS)
+
     # Train the model
-    for epoch in range(NUM_EPOCHS):
+    writer = SummaryWriter(os.path.join(os.getcwd(), 'runs', f"lstm_approach_1 - {datetime.today().strftime('%Y-%m-%d %H:%M')}"))
+    for epoch in tqdm(range(NUM_EPOCHS), desc='Train the model'):
         optimizer.zero_grad()
 
         # Forward pass
         outputs = model(X_train)
         loss = criterion(outputs, y_train)
+        writer.add_scalar("Loss/train", loss, epoch)
 
         # Backpropagation
         loss.backward()
         optimizer.step()
 
-        #Train loss
+        # Train loss
         train_losses[epoch] = loss.item()
 
         # Test loss
         test_outputs = model(X_test)
         test_loss = criterion(test_outputs, y_test)
+        writer.add_scalar("Loss/test", test_loss, epoch)
         test_losses[epoch] = test_loss.item()
 
-        if (epoch + 1) % 50 == 0:
-            print(f'At epoch {epoch+1} of {NUM_EPOCHS}, Train Loss: {loss.item():.3f}, Test Loss: {test_loss.item():.3f}')
+        # if (epoch + 1) % 50 == 0:
+        #    print(
+        #        f'At epoch {epoch + 1} of {NUM_EPOCHS}, Train Loss: {loss.item():.3f}, Test Loss: {test_loss.item():.3f}')
+
+    # Save the model at the end of the training (for future inference)
+    torch.save(model.state_dict(), os.path.join(os.getcwd(), 'model', 'checkpoints', 'lstm_approach_1.pt'))
+    writer.flush()
+    writer.close()
 
     # Plot the train loss and test loss per iteration
-    plt.plot(train_losses, label='train loss')
-    plt.plot(test_losses, label='test loss')
-    plt.xlabel('epoch no')
-    plt.ylabel('loss')
-    plt.legend()
+    _, ax = plt.subplots(1, 1, figsize=(8, 5))
+    ax.plot(train_losses, label='Train loss')
+    ax.set_xlabel('epoch no')
+    ax.set_ylabel('loss')
+    ax.set_title(f'Train loss at each iteration - {NUM_EPOCHS} epochs - T = {T}')
+    ax.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', f'LSTM_2 - Train and test loss.png'))
+    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f'LSTM_approach_1 - Train and test loss.png'))
 
+    # Plot the model performance
+    test_target = y_test.cpu().detach().numpy()
+    test_predictions = []
+    for i in tqdm(range(len(test_target)), desc='Preparing predictions'):
+        input_ = X_test[i].reshape(1, T, D)
+        p = model(input_)[0, 0].item()
+        test_predictions.append(p)
 
+    plot_len = len(test_predictions)
+    plot_df = df[['timestamp', 'y']].copy(deep=True)
+    plot_df = plot_df.iloc[-plot_len:]
+    plot_df['pred'] = test_predictions
+    plot_df.set_index('timestamp', inplace=True)
 
-    '''
-    # Instantiate the model
-    model = MyLSTM(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
-    # Define the loss function and optimizer
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    # Create a data loader
-    train_loader = DataLoader(X_train, batch_size=HIDDEN_SIZE, shuffle=False,
-                              sampler=SequentialSampler(X_train), pin_memory=False)
-    label_loader = DataLoader(y_train, batch_size=HIDDEN_SIZE, shuffle=False,
-                              sampler=SequentialSampler(y_train), pin_memory=False)
-
-    for epoch in range(NUM_EPOCHS):
-        for i, (inputs, labels) in enumerate(zip(train_loader, label_loader)):
-            optimizer.zero_grad()
-
-            # Forward pass
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-
-            # Backward pass and optimization
-            loss.backward()
-            optimizer.step()
-
-            if (i + 1) % 100 == 0:
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
-                      .format(epoch + 1, NUM_EPOCHS, i + 1, len(train_loader), loss.item()))
-    '''
+    _, ax = plt.subplots(1, 1, figsize=(10, 5))
+    ax.plot(plot_df['y'], label='ARPA pm25', linewidth=1)
+    ax.plot(plot_df['pred'], label='Predicted pm25', linewidth=1)
+    ax.set_xlabel('timestamp')
+    ax.set_ylabel(r'$\mu g/m^3$')
+    ax.set_title(f'LSTM Performance - {NUM_EPOCHS} epochs - T = {T}')
+    ax.legend(loc='lower right')
+    plt.tight_layout()
+    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f'LSTM_approach_1 - Train and test loss.png'))
 
 
 main()
