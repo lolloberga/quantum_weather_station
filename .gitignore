@@ -7,3 +7,5 @@
 resources/upload_measures_checkpoint.json
 resources/dataset/*
 /runs/
+/model/checkpoints/
+/model/draws/
