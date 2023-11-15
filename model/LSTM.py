@@ -1,4 +1,4 @@
-#from config import ConfigParser
+from config import ConfigParser
 import os
 import pandas as pd
 import numpy as np
@@ -6,28 +6,25 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
+
+from config import ConfigParser
+from model.train.LSTM_trainer import LSTM_trainer
+from model.train.hyperparams.lstm_hyperparams import LSTM_Hyperparameters
 
 # Define constants
 torch.manual_seed(1)
-RANDOM_STATE = 42
 TRAIN_SIZE = 0.8
 START_DATE_BOARD = '2022-11-03'
 END_DATE_BOARD = '2023-06-15'
 T = 5  # Number of hours to look while predicting
-
-# Define the hyperparameters
-HIDDEN_SIZE = 512
-OUTPUT_SIZE = 1
-LEARNING_RATE = 0.01
-NUM_EPOCHS = 400
 
 
 class MyLSTM(nn.Module):
 
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):
         super(MyLSTM, self).__init__()
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.M = hidden_dim
         self.L = layer_dim
 
@@ -41,8 +38,8 @@ class MyLSTM(nn.Module):
 
     def forward(self, X):
         # initial hidden state and cell state
-        h0 = torch.zeros(self.L, X.size(0), self.M)
-        c0 = torch.zeros(self.L, X.size(0), self.M)
+        h0 = torch.zeros(self.L, X.size(0), self.M).to(self._device)
+        c0 = torch.zeros(self.L, X.size(0), self.M).to(self._device)
 
         out, (hn, cn) = self.rnn(X, (h0.detach(), c0.detach()))
 
@@ -93,7 +90,7 @@ def get_period_of_the_day(timestamp):
         return 4
 
 
-def build_dataset() -> tuple:#(cfg: ConfigParser) -> tuple:
+def build_dataset(cfg: ConfigParser) -> tuple:
     df_sensors = pd.read_csv(
         os.path.join(os.getcwd(), 'resources', 'dataset', 'unique_timeserie_by_median.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
@@ -142,65 +139,27 @@ def build_dataset() -> tuple:#(cfg: ConfigParser) -> tuple:
 
 def main():
     # Get project configurations
-    #cfg = ConfigParser()
+    cfg = ConfigParser()
     # Prepare dataset
-    X_train, X_test, y_train, y_test, D, df = build_dataset()#build_dataset(cfg)
+    X_train, X_test, y_train, y_test, D, df = build_dataset(cfg)
 
     # Instantiate the model
-    model = MyLSTM(D, HIDDEN_SIZE, 2, OUTPUT_SIZE)
-    # Define the loss function and optimizer
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4)
-    train_losses = np.zeros(NUM_EPOCHS)
-    test_losses = np.zeros(NUM_EPOCHS)
-
-    # Train the model
-    writer = SummaryWriter(os.path.join(os.getcwd(), 'runs', f"lstm_approach_1 - {datetime.today().strftime('%Y-%m-%d %H:%M')}"))
-    for epoch in tqdm(range(NUM_EPOCHS), desc='Train the model'):
-        optimizer.zero_grad()
-
-        # Forward pass
-        outputs = model(X_train)
-        loss = criterion(outputs, y_train)
-        writer.add_scalar("Loss/train", loss, epoch)
-
-        # Backpropagation
-        loss.backward()
-        optimizer.step()
-
-        # Train loss
-        train_losses[epoch] = loss.item()
-
-        # Test loss
-        test_outputs = model(X_test)
-        test_loss = criterion(test_outputs, y_test)
-        writer.add_scalar("Loss/test", test_loss, epoch)
-        test_losses[epoch] = test_loss.item()
-
-        # if (epoch + 1) % 50 == 0:
-        #    print(
-        #        f'At epoch {epoch + 1} of {NUM_EPOCHS}, Train Loss: {loss.item():.3f}, Test Loss: {test_loss.item():.3f}')
-
-    # Save the model at the end of the training (for future inference)
-    torch.save(model.state_dict(), os.path.join(os.getcwd(), 'model', 'checkpoints', f"lstm_approach_1_{datetime.today().strftime('%Y-%m-%d_%H-%M')}.pt"))
-    writer.flush()
-    writer.close()
+    hyperparams = LSTM_Hyperparameters().hyperparameters
+    model = MyLSTM(D, hyperparams.HIDDEN_SIZE.value, 2, hyperparams.OUTPUT_SIZE.value)
+    # Instantiate the trainer
+    trainer = LSTM_trainer(model)
+    train_losses, test_losses = trainer.train(X_train, y_train, X_test, y_test)
 
     # Plot the train loss and test loss per iteration
-    _, ax = plt.subplots(1, 1, figsize=(8, 5))
-    ax.plot(train_losses, label='Train loss')
-    ax.set_xlabel('epoch no')
-    ax.set_ylabel('loss')
-    ax.set_title(f'Train loss at each iteration - {NUM_EPOCHS} epochs - T = {T}')
-    ax.legend()
-    plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f"LSTM_approach_1 - Train and test loss - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
+    fig = trainer.draw_train_test_loss(train_losses, test_losses)
+    fig.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM',
+                             f"LSTM_approach_1 - Train and test loss - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
 
     # Plot the model performance
     test_target = y_test.cpu().detach().numpy()
     test_predictions = []
     for i in tqdm(range(len(test_target)), desc='Preparing predictions'):
-        input_ = X_test[i].reshape(1, T, D)
+        input_ = X_test[i].reshape(1, hyperparams.T.value, D)
         p = model(input_)[0, 0].item()
         test_predictions.append(p)
 
@@ -215,10 +174,11 @@ def main():
     ax.plot(plot_df['pred'], label='Predicted pm25', linewidth=1)
     ax.set_xlabel('timestamp')
     ax.set_ylabel(r'$\mu g/m^3$')
-    ax.set_title(f'LSTM Performance - {NUM_EPOCHS} epochs - T = {T}')
+    ax.set_title(f'LSTM Performance - {hyperparams.NUM_EPOCHS.value} epochs - T = {hyperparams.T.value}')
     ax.legend(loc='lower right')
     plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM', f"LSTM_approach_1 - Train and test loss - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
+    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM',
+                             f"LSTM_approach_1 - Performance - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
 
 
 main()
