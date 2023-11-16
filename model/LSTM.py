@@ -102,12 +102,12 @@ def build_dataset(cfg: ConfigParser) -> tuple:
     df = df_sensors.merge(df_arpa, left_on=['timestamp'], right_on=['timestamp'])
     df.rename(columns={"data": "x", "pm25": "y"}, inplace=True)
     # Add month column and transform it into one-hot-encording
-    df['month'] = df.timestamp.dt.month
-    df['period_day'] = df['timestamp'].map(get_period_of_the_day)
+    #df['month'] = df.timestamp.dt.month
+    #df['period_day'] = df['timestamp'].map(get_period_of_the_day)
     # Transform some features into one-hot encoding
-    df = pd.get_dummies(df, columns=['month', 'period_day'])
+    #df = pd.get_dummies(df, columns=['month', 'period_day'])
 
-    input_data = df.drop(['timestamp', 'y'], axis=1)
+    input_data = df.drop(['timestamp'], axis=1)
     targets = df.y.values
     D = input_data.shape[1]  # Dimensionality of the input
     N = len(input_data) - T
