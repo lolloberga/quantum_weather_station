@@ -12,18 +12,7 @@ from tqdm import tqdm
 from model.train.base.hyperparameters import Hyperparameters
 from model.train.base.trainer import Trainer
 from model.train.hyperparams.lstm_hyperparams import LSTM_Hyperparameters
-
-
-def draw_prediction_tensorboard(prediction: torch.Tensor, actual: torch.Tensor, epoch: int) -> plt.Figure:
-    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
-    ax.plot(actual.detach().numpy().T[0], label='ARPA pm25', linewidth=1)
-    ax.plot(prediction.detach().numpy().T[0], label='Predicted pm25', linewidth=1)
-    ax.set_xlabel('')
-    ax.set_ylabel(r'$\mu g/m^3$')
-    ax.set_title(f'LSTM Performance - At epoch {epoch}')
-    ax.legend(loc='lower right')
-    fig.tight_layout()
-    return fig
+from utils.tensorboard_utils import TensorboardUtils
 
 
 class LSTM_trainer(Trainer):
@@ -92,9 +81,9 @@ class LSTM_trainer(Trainer):
             test_losses[epoch] = test_loss.item()
 
             # Draw plot predicted vs actuals (tensorboard)
-            if (epoch + 1) % 5 == 0:
+            if (epoch + 1) % 10 == 0:
                 self.writer.add_figure('LSTM - Predicted vs Actual',
-                                       draw_prediction_tensorboard(test_outputs, y_test, epoch), global_step=epoch)
+                                       TensorboardUtils.draw_prediction_tensorboard(test_outputs, y_test, epoch), global_step=epoch)
 
         # Save the model at the end of the training (for future inference)
         self._save_model()
