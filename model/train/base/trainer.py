@@ -3,11 +3,14 @@ import os
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Tuple
+
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
+from config import ConfigParser
 from model.train.base.hyperparameters import Hyperparameters
 from model.train.hyperparams.default_hyperparams import DefaultHyperparameters
 
@@ -24,9 +27,12 @@ class Trainer(ABC):
         self._name = name
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model.to(self._device)
+        # Get project configurations
+        self._cfg = ConfigParser()
 
         if writer is None:
-            self._writer = SummaryWriter(os.path.join(os.getcwd(), 'runs', f"{self._name} - {datetime.today().strftime('%Y-%m-%d %H:%M')}"))
+            self._writer = SummaryWriter(
+                os.path.join(os.getcwd(), 'runs', f"{self._name} - {datetime.today().strftime('%Y-%m-%d %H:%M')}"))
         if hyperparameters is None:
             self._hyperparameters = DefaultHyperparameters().hyperparameters
         else:
@@ -40,28 +46,6 @@ class Trainer(ABC):
     def writer(self) -> SummaryWriter:
         return self._writer
 
-    '''
-    @property
-    def criterion(self):
-        return self._criterion
-
-    @criterion.setter
-    def criterion(self, value) -> None:
-        self._criterion = value
-
-    @property
-    def optimizer(self) -> torch.optim.Optimizer:
-        return self._optim
-
-    @optimizer.setter
-    def optimizer(self, value: torch.optim.Optimizer) -> None:
-        self._optim = value
-
-    @writer.setter
-    def writer(self, value: SummaryWriter) -> None:
-        self._writer = value
-    '''
-
     @property
     def hyperparameters(self) -> enum.Enum:
         return self._hyperparameters
@@ -69,6 +53,26 @@ class Trainer(ABC):
     @hyperparameters.setter
     def hyperparameters(self, value: Hyperparameters) -> None:
         self._hyperparameters = value
+
+    def _save_model(self) -> None:
+        folder = self._cfg.consts['MODEL_CHECKPOINT_PATH']
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        folder = os.path.join(self._cfg.consts['MODEL_CHECKPOINT_PATH'], self.get_name())
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        torch.save(self._model.state_dict(), os.path.join(folder, f"{self.get_name()}_{datetime.today().strftime('%Y-%m-%d_%H-%M')}.pt"))
+
+    def save_image(self, name: str, fig: plt.Figure) -> None:
+        folder = self._cfg.consts['MODEL_DRAWS_PATH']
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        folder = os.path.join(self._cfg.consts['MODEL_DRAWS_PATH'], self.get_name())
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        fig.savefig(os.path.join(folder, f"{name} - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
 
     @abstractmethod
     def get_optmizer(self) -> torch.optim.Optimizer:

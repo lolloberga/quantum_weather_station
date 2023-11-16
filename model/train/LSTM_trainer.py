@@ -39,10 +39,6 @@ class LSTM_trainer(Trainer):
             self._criterion = nn.MSELoss()
         return self._criterion
 
-    def _save_model(self) -> None:
-        torch.save(self.model.state_dict(), os.path.join(os.getcwd(), 'model', 'checkpoints',
-                                                         f"lstm_approach_1_{datetime.today().strftime('%Y-%m-%d_%H-%M')}.pt"))
-
     def train(self, X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None,
               y_test: torch.Tensor = None) -> Tuple[np.array, np.array]:
 

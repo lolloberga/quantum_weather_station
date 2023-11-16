@@ -152,8 +152,7 @@ def main():
 
     # Plot the train loss and test loss per iteration
     fig = trainer.draw_train_test_loss(train_losses, test_losses)
-    fig.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM',
-                             f"LSTM_approach_1 - Train and test loss - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
+    trainer.save_image('LSTM_approach_1 - Train and test loss', fig)
 
     # Plot the model performance
     test_target = y_test.cpu().detach().numpy()
@@ -169,16 +168,15 @@ def main():
     plot_df['pred'] = test_predictions
     plot_df.set_index('timestamp', inplace=True)
 
-    _, ax = plt.subplots(1, 1, figsize=(10, 5))
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
     ax.plot(plot_df['y'], label='ARPA pm25', linewidth=1)
     ax.plot(plot_df['pred'], label='Predicted pm25', linewidth=1)
     ax.set_xlabel('timestamp')
     ax.set_ylabel(r'$\mu g/m^3$')
     ax.set_title(f'LSTM Performance - {hyperparams.NUM_EPOCHS.value} epochs - T = {hyperparams.T.value}')
     ax.legend(loc='lower right')
-    plt.tight_layout()
-    plt.savefig(os.path.join(os.getcwd(), 'model', 'draws', 'LSTM',
-                             f"LSTM_approach_1 - Performance - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
+    fig.tight_layout()
+    trainer.save_image('LSTM_approach_1 - Performance', fig)
 
 
 main()

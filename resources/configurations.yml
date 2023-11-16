@@ -15,3 +15,7 @@ dataset:
   board_config_name: board.json
   sensor_name_prefix: s
   checkpoint_path: resources/
+
+model:
+  draws_path: model/draws
+  checkpoint_path: model/checkpoints
