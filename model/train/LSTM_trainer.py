@@ -17,16 +17,17 @@ from utils.tensorboard_utils import TensorboardUtils
 
 class LSTM_trainer(Trainer):
 
-    def __init__(self, model: nn.Module, criterion=None, optimizer: torch.optim.Optimizer = None,
+    def __init__(self, model: nn.Module, name: str=None, criterion=None, optimizer: torch.optim.Optimizer = None,
                  writer: SummaryWriter = None, hyperparameters: Hyperparameters = None) -> None:
 
+        self._name = name
         if hyperparameters is None:
             hyperparameters = LSTM_Hyperparameters()
 
         super().__init__(model, self.get_name(), criterion, optimizer, writer, hyperparameters)
 
     def get_name(self) -> str:
-        return 'lstm_approach_1'
+        return 'lstm_approach_1' if self._name is None else self._name
 
     def get_optmizer(self) -> torch.optim.Optimizer:
         if self._optim is None:
