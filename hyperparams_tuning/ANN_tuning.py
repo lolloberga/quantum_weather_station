@@ -22,11 +22,9 @@ from utils.dataset_utils import DatasetUtils
 START_DATE_BOARD = '2022-11-03'
 END_DATE_BOARD = '2023-06-15'
 RANDOM_STATE = 42
-TRAIN_SIZE = 0.7
-BATCH_LOADER_SIZE = 2
 
 
-def build_dataset_2(cfg: ConfigParser, batch_loader_size: int = BATCH_LOADER_SIZE) -> tuple:
+def build_dataset_2(cfg: ConfigParser, batch_loader_size: int = 2, train_size: float = 0.7) -> tuple:
     df_sensors = pd.read_csv(
         os.path.join(cfg.consts['DATASET_PATH'], 'unique_timeseries_by_median_minutes.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
@@ -59,7 +57,7 @@ def build_dataset_2(cfg: ConfigParser, batch_loader_size: int = BATCH_LOADER_SIZ
 
     X = df.loc[:, df.columns != "arpa"]
     y = df['arpa']
-    X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, train_size=TRAIN_SIZE,
+    X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, train_size=train_size,
                                                         shuffle=False,
                                                         random_state=RANDOM_STATE)
     # Convert to 2D PyTorch tensors
@@ -106,41 +104,47 @@ def plot_performance(model: nn.Module, test_loader: DataLoader, df_arpa: pd.Data
     trainer.save_image('ANN - Performance', fig)
 
 
-def runs(hyperparams: dict) -> None:
+def runs(hyperparams: ANN_Hyperparameters, name: str = 'ANN_tuning_1') -> None:
     # Get project configurations
     cfg = ConfigParser()
-    # Get default hyperparams and customize them
-    default_hyperparams = ANN_Hyperparameters()
-    Hyperparameters.change_value(default_hyperparams.hyperparameters.NUM_EPOCHS.value, hyperparams['epochs'])
     # Prepare dataset
-    train_loader, test_loader, df_arpa = build_dataset_2(cfg, batch_loader_size=hyperparams['batch_size'])
+    train_loader, test_loader, df_arpa = build_dataset_2(cfg, batch_loader_size=hyperparams.BATCH_SIZE.value,
+                                                         train_size=hyperparams.TRAIN_SIZE.value)
     # Instantiate the model
-    # model = MyNeuralNetwork(60, 1, hyperparams['l1'], hyperparams['l2'], hyperparams['l3'])
-    model = MyNeuralNetwork(60, 1, hyperparams['l1'])
-    trainer = ANN_trainer(model, name='ANN_tuning_1', hyperparameters=default_hyperparams)
+    model = MyNeuralNetwork(60, 1, hyperparams.HIDDEN_SIZE.value, hyperparams.HIDDEN_SIZE_2.value,
+                            hyperparams.HIDDEN_SIZE_3.value)
+    # Instantiate the trainer
+    trainer = ANN_trainer(model, name=name, hyperparameters=hyperparams)
+    train_losses, test_losses = trainer.train_loader(train_loader, test_loader)
+    # Save hparams result on Tensorboard
+    trainer.writer.add_hparams(hyperparams.get_values_as_dict(), {'loss/train': train_losses[-1], 'loss/test': test_losses[-1]})
+    # Plot the train loss and test loss per iteration
+    fig = trainer.draw_train_test_loss(train_losses, test_losses)
+    trainer.save_image('ANN - Train and test loss', fig)
 
-    train_losses, test_losses = trainer.train_loader(train_loader, test_loader, use_ray_tune=True)
 
 
 def main():
     print('Start ANN hyperparameters tuning')
     # Get configuration space
-    epochs = [10, 20]
+    epochs = [1, 2]
     batches = [2, 4]
     hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE']
     # Get all possibile hyperaprameters combination
     combinations = list(itertools.product(epochs, batches))
     hparams = []
-    for comb in combinations:
-        hparam = ANN_Hyperparameters()
+    for _, comb in enumerate(combinations):
+        # hparam = ANN_Hyperparameters()
         param_as_dict = dict()
         for idx, param in enumerate(comb):
             param_as_dict[hparam_names[idx]] = param
-        hparam.set_values_from_dict(param_as_dict)
+        # hparam.set_values_from_dict(param_as_dict)
+        hparam = ANN_Hyperparameters(dict_params=param_as_dict)
         hparams.append(hparam)
-
     # Iterate over all possibile combinations of hyperparameters
     print(f'Fine-tuning of {len(hparams)} combinations')
+    for hparam in hparams:
+        runs(hparam)
 
 
 if __name__ == "__main__":

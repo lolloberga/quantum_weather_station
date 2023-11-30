@@ -13,8 +13,14 @@ class Hyperparameters:
         names = [hparams.name for hparams in self.hyperparameters]
         for k, v in my_dict.items():
             if k in names:
-                # self.hyperparameters[k] = v
                 Hyperparameters.change_value(self.hyperparameters[k].value, v)
+
+    def get_values_as_dict(self) -> dict:
+        names = [hparams.name for hparams in self.hyperparameters]
+        result = dict()
+        for k in names:
+            result[k] = self.hyperparameters[k].value
+        return result
 
     @staticmethod
     def get_values(obj) -> list:
@@ -43,4 +49,22 @@ class Hyperparameters:
         for index in range(len(des_arr)):
             des_arr[index] = src_arr[index]
 
+    @staticmethod
+    def from_enum_to_dict(hyperparams: enum.Enum) -> dict:
+        names = [hparams.name for hparams in hyperparams]
+        result = dict()
+        for k in names:
+            result[k] = hyperparams[k].value
+        return result
 
+    @staticmethod
+    def from_dict_to_enum(name: str, values: dict):
+        _k = _v = None
+
+        class TheEnum(enum.Enum):
+            nonlocal _k, _v
+            for _k, _v in values.items():
+                locals()[_k] = _v
+
+        TheEnum.__name__ = name
+        return TheEnum
