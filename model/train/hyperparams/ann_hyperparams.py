@@ -4,16 +4,22 @@ from model.train.base.hyperparameters import Hyperparameters
 
 
 class _Defaults(enum.Enum):
-    LEARNING_RATE = 0.01
-    NUM_EPOCHS = 300
-    HIDDEN_SIZE = 512
+    TRAIN_SIZE = 0.7
+    RANDOM_STATE = 42
+    INPUT_SIZE = 60
+    HIDDEN_SIZE = 128
     OUTPUT_SIZE = 1
-    T = 5  # Number of hours to look while predicting
+    LEARNING_RATE = 0.0001
+    NUM_EPOCHS = 20
+    BATCH_SIZE = 2
 
 
-class LSTM_Hyperparameters(Hyperparameters):
+class ANN_Hyperparameters(Hyperparameters):
 
     def __init__(self, hyperparams: enum.Enum = None):
         if hyperparams is None:
             hyperparams = _Defaults
         super().__init__(hyperparams)
+
+
+

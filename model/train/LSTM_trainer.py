@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from matplotlib import pyplot as plt
 from torch import nn as nn
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
@@ -17,7 +18,7 @@ from utils.tensorboard_utils import TensorboardUtils
 
 class LSTM_trainer(Trainer):
 
-    def __init__(self, model: nn.Module, name: str=None, criterion=None, optimizer: torch.optim.Optimizer = None,
+    def __init__(self, model: nn.Module, name: str = None, criterion=None, optimizer: torch.optim.Optimizer = None,
                  writer: SummaryWriter = None, hyperparameters: Hyperparameters = None) -> None:
 
         self._name = name
@@ -50,8 +51,8 @@ class LSTM_trainer(Trainer):
         train_losses = np.zeros(self.hyperparameters.NUM_EPOCHS.value)
         test_losses = np.zeros(self.hyperparameters.NUM_EPOCHS.value)
 
-        X_train, y_train = X_train.to(self._device), y_train.to(self._device)
-        X_test, y_test = X_test.to(self._device), y_test.to(self._device)
+        X_train, y_train = X_train.to(self.device), y_train.to(self.device)
+        X_test, y_test = X_test.to(self.device), y_test.to(self.device)
 
         optimizer = self.get_optmizer()
         criterion = self.get_criterion()
@@ -80,13 +81,18 @@ class LSTM_trainer(Trainer):
             # Draw plot predicted vs actuals (tensorboard)
             if (epoch + 1) % 10 == 0:
                 self.writer.add_figure('LSTM - Predicted vs Actual',
-                                       TensorboardUtils.draw_prediction_tensorboard(test_outputs, y_test, epoch), global_step=epoch)
+                                       TensorboardUtils.draw_prediction_tensorboard(test_outputs, y_test, epoch),
+                                       global_step=epoch+1)
 
         # Save the model at the end of the training (for future inference)
         self._save_model()
         self.writer.flush()
         self.writer.close()
         return train_losses, test_losses
+
+    def train_loader(self, train_loader: DataLoader, test_loader: DataLoader, use_ray_tune: bool = False) \
+            -> Tuple[np.array, np.array]:
+        pass
 
     def predict(self, X: torch.Tensor) -> np.array:
         self.model.eval()
@@ -108,7 +114,7 @@ class LSTM_trainer(Trainer):
         ax.set_xlabel('epoch no')
         ax.set_ylabel('loss')
         ax.set_title(
-            f'Train loss at each iteration - {self.hyperparameters.NUM_EPOCHS.value} epochs - T = {self.hyperparameters.T.value}')
+            f'Train/Test loss at each iteration - {self.hyperparameters.NUM_EPOCHS.value} epochs - T = {self.hyperparameters.T.value}')
         ax.legend()
         fig.tight_layout()
         return fig

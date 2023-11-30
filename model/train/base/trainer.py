@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import numpy as np
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from config import ConfigParser
@@ -26,6 +27,7 @@ class Trainer(ABC):
         self._optim = optimizer
         self._name = name
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"{self._name} - Using {self._device} device")
         self._model.to(self._device)
         # Get project configurations
         self._cfg = ConfigParser()
@@ -45,6 +47,10 @@ class Trainer(ABC):
     @property
     def writer(self) -> SummaryWriter:
         return self._writer
+
+    @property
+    def device(self):
+        return self._device
 
     @property
     def hyperparameters(self) -> enum.Enum:
@@ -88,9 +94,27 @@ class Trainer(ABC):
         pass
 
     @abstractmethod
+    def train_loader(self, train_loader: DataLoader, test_loader: DataLoader, use_ray_tune: bool = False) \
+            -> Tuple[np.array, np.array]:
+        pass
+
+    @abstractmethod
     def predict(self, X: torch.Tensor) -> np.array:
         pass
 
     @abstractmethod
     def get_name(self) -> str:
         pass
+
+    def draw_train_test_loss(self, train_losses: np.array, test_losses: np.array):
+        # Plot the train loss and test loss per iteration
+        fig, ax = plt.subplots(1, 1, figsize=(8, 5))
+        ax.plot(train_losses, label='Train loss')
+        ax.plot(test_losses, label='Test loss')
+        ax.set_xlabel('epoch no')
+        ax.set_ylabel('loss')
+        ax.set_title(
+            f'Train/Test loss at each iteration - {self.hyperparameters.NUM_EPOCHS.value} epochs')
+        ax.legend()
+        fig.tight_layout()
+        return fig
