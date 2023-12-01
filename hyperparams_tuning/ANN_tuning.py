@@ -11,10 +11,7 @@ from torch import nn
 from torch.utils.data import DataLoader, RandomSampler
 from tqdm import tqdm
 
-import sys
-
-sys.path.append("..")
-from config import ConfigParser
+# from config import ConfigParser
 from model.ANN import PM25AnnDataset2, MyNeuralNetwork
 from model.loss_functions.RMSELoss import RMSELoss
 from model.train.ANN_trainer import ANN_trainer
@@ -27,15 +24,19 @@ START_DATE_BOARD = '2022-11-03'
 END_DATE_BOARD = '2023-06-15'
 RANDOM_STATE = 42
 
+ROOT_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+).replace('/hyperparams_tuning', '/resources/dataset')
 
-def build_dataset_2(cfg: ConfigParser, batch_loader_size: int = 2, train_size: float = 0.7) -> tuple:
+
+def build_dataset_2(cfg: object, batch_loader_size: int = 2, train_size: float = 0.7) -> tuple:
     df_sensors = pd.read_csv(
-        os.path.join(cfg.consts['DATASET_PATH'], 'unique_timeseries_by_median_minutes.csv'))
+        os.path.join(ROOT_DIR, 'unique_timeseries_by_median_minutes.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
     df_sensors.timestamp += pd.Timedelta(minutes=1)
-    df_arpa = DatasetUtils.build_arpa_dataset(os.path.join(cfg.consts['DATASET_PATH'], 'arpa',
+    df_arpa = DatasetUtils.build_arpa_dataset(os.path.join(ROOT_DIR, 'arpa',
                                                            'Dati PM10_PM2.5_2020-2022.csv')
-                                              , os.path.join(cfg.consts['DATASET_PATH'], 'arpa',
+                                              , os.path.join(ROOT_DIR, 'arpa',
                                                              'Torino-Rubino_Polveri-sottili_2023-01-01_2023-06-30.csv'),
                                               START_DATE_BOARD, END_DATE_BOARD)
     # Apply date range filter (inner join)
@@ -138,9 +139,9 @@ def choose_criterion(hyperparams: dict):
 def runs(hyperparams: ANN_Hyperparameters,
          name: str = 'ANN_TUNING_test') -> None:
     # Get project configurations
-    cfg = ConfigParser()
+    # cfg = ConfigParser()
     # Prepare dataset
-    train_loader, test_loader, df_arpa = build_dataset_2(cfg, batch_loader_size=hyperparams['BATCH_SIZE'],
+    train_loader, test_loader, df_arpa = build_dataset_2(None, batch_loader_size=hyperparams['BATCH_SIZE'],
                                                          train_size=hyperparams['TRAIN_SIZE'])
     # Instantiate the model
     model = MyNeuralNetwork(60, 1, hyperparams['HIDDEN_SIZE'], hyperparams['HIDDEN_SIZE_2'],
