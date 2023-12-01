@@ -11,6 +11,9 @@ from torch import nn
 from torch.utils.data import DataLoader, RandomSampler
 from tqdm import tqdm
 
+import sys
+
+sys.path.append("..")
 from config import ConfigParser
 from model.ANN import PM25AnnDataset2, MyNeuralNetwork
 from model.loss_functions.RMSELoss import RMSELoss
@@ -110,6 +113,9 @@ def choose_optimizer(hyperparams: dict, model: nn.Module) -> torch.optim:
     if hyperparams['OPTIMIZER'] is not None and isinstance(hyperparams['OPTIMIZER'], str):
         if hyperparams['OPTIMIZER'].lower() == 'adam':
             optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams['LEARNING_RATE'])
+        elif hyperparams['OPTIMIZER'].lower() == 'sdg':
+            optimizer = torch.optim.SGD(model.parameters(), lr=hyperparams['LEARNING_RATE'],
+                                        momentum=hyperparams['MOMENTUM'], weight_decay=hyperparams['WEIGHT_DECAY'])
         else:
             raise ValueError(f'Unknown optimizer {hyperparams["OPTIMIZER"]}')
     return optimizer
@@ -163,7 +169,7 @@ def main():
     h2 = [90]
     h3 = [30]
     optimizer = ['adam']
-    criterion = ['rmse']
+    criterion = ['rmse', 'mse', 'l1']
     hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE', 'HIDDEN_SIZE', 'HIDDEN_SIZE_2', 'HIDDEN_SIZE_3',
                     'OPTIMIZER', 'CRITERION']
     # Get all possibile hyperaprameters combination
