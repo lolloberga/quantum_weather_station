@@ -1,4 +1,3 @@
-import enum
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -34,7 +33,7 @@ class Trainer(ABC):
 
         if writer is None:
             self._writer = SummaryWriter(
-                os.path.join(os.getcwd(), 'runs', f"{self._name} - {datetime.today().strftime('%Y-%m-%d %H:%M')}"))
+                os.path.join(self._cfg.consts['MAIN_PATH'], 'runs', f"{self._name} - {datetime.today().strftime('%Y-%m-%d %H:%M')}"))
         if hyperparameters is None:
             self._hyperparameters = DefaultHyperparameters().hyperparameters
         else:
@@ -53,11 +52,11 @@ class Trainer(ABC):
         return self._device
 
     @property
-    def hyperparameters(self) -> enum.Enum:
+    def hyperparameters(self) -> dict:
         return self._hyperparameters
 
     @hyperparameters.setter
-    def hyperparameters(self, value: Hyperparameters) -> None:
+    def hyperparameters(self, value: dict) -> None:
         self._hyperparameters = value
 
     def _save_model(self) -> None:
@@ -81,7 +80,7 @@ class Trainer(ABC):
         fig.savefig(os.path.join(folder, f"{name} - {datetime.today().strftime('%Y-%m-%d_%H-%M')}.png"))
 
     @abstractmethod
-    def get_optmizer(self) -> torch.optim.Optimizer:
+    def get_optimizer(self) -> torch.optim.Optimizer:
         pass
 
     @abstractmethod
@@ -114,7 +113,7 @@ class Trainer(ABC):
         ax.set_xlabel('epoch no')
         ax.set_ylabel('loss')
         ax.set_title(
-            f'Train/Test loss at each iteration - {self.hyperparameters.NUM_EPOCHS.value} epochs')
+            f'Train/Test loss at each iteration - {self.hyperparameters["NUM_EPOCHS"]} epochs')
         ax.legend()
         fig.tight_layout()
         return fig

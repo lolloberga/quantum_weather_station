@@ -59,7 +59,7 @@ def get_period_of_the_day(timestamp):
         return 4
 
 
-def build_dataset(cfg: ConfigParser, hyperparams: LSTM_Hyperparameters) -> tuple:
+def build_dataset(cfg: ConfigParser, hyperparams: dict) -> tuple:
     df_sensors = pd.read_csv(
         os.path.join(os.getcwd(), 'resources', 'dataset', 'unique_timeseries_by_median_hours.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
@@ -82,23 +82,23 @@ def build_dataset(cfg: ConfigParser, hyperparams: LSTM_Hyperparameters) -> tuple
     input_data = df.drop(['timestamp'], axis=1)
     targets = df.y.values
     D = input_data.shape[1]  # Dimensionality of the input
-    N = len(input_data) - T
+    N = len(input_data) - hyperparams['T']
 
-    train_size = int(len(input_data) * hyperparams.TRAIN_SIZE.value)
+    train_size = int(len(input_data) * hyperparams['TRAIN_SIZE'])
     # Preparing X_train and y_train
-    X_train = np.zeros((train_size, hyperparams.T.value, D))
+    X_train = np.zeros((train_size, hyperparams['T'], D))
     y_train = np.zeros((train_size, 1))
     for t in range(train_size):
-        X_train[t, :, :] = input_data[t:t + hyperparams.T.value]
-        y_train[t] = (targets[t + hyperparams.T.value])
+        X_train[t, :, :] = input_data[t:t + hyperparams['T']]
+        y_train[t] = (targets[t + hyperparams['T']])
 
     # Preparing X_test and y_test
-    X_test = np.zeros((N - train_size, hyperparams.T.value, D))
+    X_test = np.zeros((N - train_size, hyperparams['T'], D))
     y_test = np.zeros((N - train_size, 1))
     for i in range(N - train_size):
         t = i + train_size
-        X_test[i, :, :] = input_data[t:t + hyperparams.T.value]
-        y_test[i] = (targets[t + hyperparams.T.value])
+        X_test[i, :, :] = input_data[t:t + hyperparams['T']]
+        y_test[i] = (targets[t + hyperparams['T']])
 
     # Make inputs and targets
     X_train = torch.from_numpy(X_train.astype(np.float32))
@@ -116,7 +116,7 @@ def main():
     # Prepare dataset
     X_train, X_test, y_train, y_test, D, df = build_dataset(cfg, hyperparams)
     # Instantiate the model
-    model = MyLSTM(D, hyperparams.HIDDEN_SIZE.value, 2, hyperparams.OUTPUT_SIZE.value)
+    model = MyLSTM(D, hyperparams['HIDDEN_SIZE'], 2, hyperparams['OUTPUT_SIZE'])
     # Instantiate the trainer
     trainer = LSTM_trainer(model, name='lstm_+1hour_arpa')
     train_losses, test_losses = trainer.train(X_train, y_train, X_test, y_test)
@@ -129,7 +129,7 @@ def main():
     test_target = y_test.cpu().detach().numpy()
     test_predictions = []
     for i in tqdm(range(len(test_target)), desc='Preparing predictions'):
-        input_ = X_test[i].reshape(1, hyperparams.T.value, D)
+        input_ = X_test[i].reshape(1, hyperparams['T'], D)
         p = model(input_)[0, 0].item()
         test_predictions.append(p)
 
@@ -144,7 +144,7 @@ def main():
     ax.plot(plot_df['pred'], label='Predicted pm25', linewidth=1)
     ax.set_xlabel('timestamp')
     ax.set_ylabel(r'$\mu g/m^3$')
-    ax.set_title(f'LSTM Performance - {hyperparams.NUM_EPOCHS.value} epochs - T = {hyperparams.T.value}')
+    ax.set_title(f'LSTM Performance - {hyperparams.NUM_EPOCHS.value} epochs - T = {hyperparams["T"]}')
     ax.legend(loc='lower right')
     fig.tight_layout()
     trainer.save_image('LSTM_+1hour_arpa - Performance', fig)

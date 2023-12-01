@@ -9,7 +9,7 @@ resouces:
   path: resources
 
 dataset:
-  path: /resources/dataset
+  path: resources/dataset
   download_repositories: resources/download_dataset_map.json
   folder_name_prefix: board_
   board_config_name: board.json

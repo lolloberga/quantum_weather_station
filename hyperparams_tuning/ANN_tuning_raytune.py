@@ -120,7 +120,7 @@ def train_hyperparams(hyperparams) -> None:
     cfg = ConfigParser()
     # Get default hyperparams and customize them
     default_hyperparams = ANN_Hyperparameters()
-    Hyperparameters.change_value(default_hyperparams.hyperparameters.NUM_EPOCHS.value, hyperparams['epochs'])
+    # Hyperparameters.change_value(default_hyperparams.hyperparameters.NUM_EPOCHS.value, hyperparams['epochs'])
     # Prepare dataset
     train_loader, test_loader, df_arpa = build_dataset_2(cfg, batch_loader_size=hyperparams['batch_size'])
     # Instantiate the model
@@ -135,7 +135,7 @@ def train_hyperparams(hyperparams) -> None:
             model_state, optimizer_state = torch.load(
                 os.path.join(checkpoint_dir, "checkpoint"))
             trainer.model.load_state_dict(model_state)
-            trainer.get_optmizer().load_state_dict(optimizer_state)
+            trainer.get_optimizer().load_state_dict(optimizer_state)
 
     train_losses, test_losses = trainer.train_loader(train_loader, test_loader, use_ray_tune=True)
 

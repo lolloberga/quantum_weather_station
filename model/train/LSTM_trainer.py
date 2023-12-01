@@ -30,9 +30,9 @@ class LSTM_trainer(Trainer):
     def get_name(self) -> str:
         return 'lstm_approach_1' if self._name is None else self._name
 
-    def get_optmizer(self) -> torch.optim.Optimizer:
+    def get_optimizer(self) -> torch.optim.Optimizer:
         if self._optim is None:
-            self._optim = torch.optim.SGD(self.model.parameters(), lr=self.hyperparameters.LEARNING_RATE.value,
+            self._optim = torch.optim.SGD(self.model.parameters(), lr=self.hyperparameters['LEARNING_RATE'],
                                           momentum=0.9, weight_decay=1e-4)
         return self._optim
 
@@ -48,16 +48,16 @@ class LSTM_trainer(Trainer):
         self.writer.add_graph(self.model, X_train)
 
         self.model.train()
-        train_losses = np.zeros(self.hyperparameters.NUM_EPOCHS.value)
-        test_losses = np.zeros(self.hyperparameters.NUM_EPOCHS.value)
+        train_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
+        test_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
 
         X_train, y_train = X_train.to(self.device), y_train.to(self.device)
         X_test, y_test = X_test.to(self.device), y_test.to(self.device)
 
-        optimizer = self.get_optmizer()
+        optimizer = self.get_optimizer()
         criterion = self.get_criterion()
 
-        for epoch in tqdm(range(self.hyperparameters.NUM_EPOCHS.value), desc='Train the LSTM model'):
+        for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc='Train the LSTM model'):
             optimizer.zero_grad()
 
             # Forward pass
@@ -114,7 +114,7 @@ class LSTM_trainer(Trainer):
         ax.set_xlabel('epoch no')
         ax.set_ylabel('loss')
         ax.set_title(
-            f'Train/Test loss at each iteration - {self.hyperparameters.NUM_EPOCHS.value} epochs - T = {self.hyperparameters.T.value}')
+            f'Train/Test loss at each iteration - {self.hyperparameters["NUM_EPOCHS"]} epochs - T = {self.hyperparameters["T"]}')
         ax.legend()
         fig.tight_layout()
         return fig

@@ -1,5 +1,6 @@
 import itertools
 import os
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -12,8 +13,8 @@ from tqdm import tqdm
 
 from config import ConfigParser
 from model.ANN import PM25AnnDataset2, MyNeuralNetwork
+from model.loss_functions.RMSELoss import RMSELoss
 from model.train.ANN_trainer import ANN_trainer
-from model.train.base.hyperparameters import Hyperparameters
 from model.train.base.trainer import Trainer
 from model.train.hyperparams.ann_hyperparams import ANN_Hyperparameters
 from utils.dataset_utils import DatasetUtils
@@ -104,47 +105,80 @@ def plot_performance(model: nn.Module, test_loader: DataLoader, df_arpa: pd.Data
     trainer.save_image('ANN - Performance', fig)
 
 
-def runs(hyperparams: ANN_Hyperparameters, name: str = 'ANN_tuning_1') -> None:
+def choose_optimizer(hyperparams: dict, model: nn.Module) -> torch.optim:
+    optimizer = None
+    if hyperparams['OPTIMIZER'] is not None and isinstance(hyperparams['OPTIMIZER'], str):
+        if hyperparams['OPTIMIZER'].lower() == 'adam':
+            optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams['LEARNING_RATE'])
+        else:
+            raise ValueError(f'Unknown optimizer {hyperparams["OPTIMIZER"]}')
+    return optimizer
+
+
+def choose_criterion(hyperparams: dict):
+    criterion = None
+    if hyperparams['CRITERION'] is not None and isinstance(hyperparams['CRITERION'], str):
+        if hyperparams['CRITERION'].lower() == 'mse':
+            criterion = nn.MSELoss()
+        elif hyperparams['CRITERION'].lower() == 'l1':
+            criterion = nn.L1Loss()
+        elif hyperparams['CRITERION'].lower() == 'rmse':
+            criterion = RMSELoss()
+        else:
+            raise ValueError(f'Unknown criterion {hyperparams["CRITERION"]}')
+    return criterion
+
+
+def runs(hyperparams: ANN_Hyperparameters,
+         name: str = 'ANN_TUNING_test') -> None:
     # Get project configurations
     cfg = ConfigParser()
     # Prepare dataset
-    train_loader, test_loader, df_arpa = build_dataset_2(cfg, batch_loader_size=hyperparams.BATCH_SIZE.value,
-                                                         train_size=hyperparams.TRAIN_SIZE.value)
+    train_loader, test_loader, df_arpa = build_dataset_2(cfg, batch_loader_size=hyperparams['BATCH_SIZE'],
+                                                         train_size=hyperparams['TRAIN_SIZE'])
     # Instantiate the model
-    model = MyNeuralNetwork(60, 1, hyperparams.HIDDEN_SIZE.value, hyperparams.HIDDEN_SIZE_2.value,
-                            hyperparams.HIDDEN_SIZE_3.value)
+    model = MyNeuralNetwork(60, 1, hyperparams['HIDDEN_SIZE'], hyperparams['HIDDEN_SIZE_2'],
+                            hyperparams['HIDDEN_SIZE_3'])
+    # Get the correct optimizer and criterion
+    optimizer = choose_optimizer(hyperparams.hyperparameters, model)
+    criterion = choose_criterion(hyperparams.hyperparameters)
     # Instantiate the trainer
-    trainer = ANN_trainer(model, name=name, hyperparameters=hyperparams)
+    trainer = ANN_trainer(model, name=name, hyperparameters=hyperparams, optimizer=optimizer, criterion=criterion)
     train_losses, test_losses = trainer.train_loader(train_loader, test_loader)
     # Save hparams result on Tensorboard
-    trainer.writer.add_hparams(hyperparams.get_values_as_dict(), {'loss/train': train_losses[-1], 'loss/test': test_losses[-1]})
+    trainer.writer.add_hparams(hyperparams.hyperparameters,
+                               {'loss/train': train_losses[-1], 'loss/test': test_losses[-1]})
     # Plot the train loss and test loss per iteration
     fig = trainer.draw_train_test_loss(train_losses, test_losses)
-    trainer.save_image('ANN - Train and test loss', fig)
-
+    trainer.save_image(f'{name} - Train and test loss', fig)
 
 
 def main():
     print('Start ANN hyperparameters tuning')
     # Get configuration space
-    epochs = [1, 2]
+    epochs = [2]
     batches = [2, 4]
-    hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE']
+    lr = [0.0001]
+    h1 = [128]
+    h2 = [90]
+    h3 = [30]
+    optimizer = ['adam']
+    criterion = ['rmse']
+    hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE', 'HIDDEN_SIZE', 'HIDDEN_SIZE_2', 'HIDDEN_SIZE_3',
+                    'OPTIMIZER', 'CRITERION']
     # Get all possibile hyperaprameters combination
-    combinations = list(itertools.product(epochs, batches))
+    combinations = list(itertools.product(epochs, batches, lr, h1, h2, h3, optimizer, criterion))
     hparams = []
     for _, comb in enumerate(combinations):
-        # hparam = ANN_Hyperparameters()
-        param_as_dict = dict()
+        hparam = dict()
         for idx, param in enumerate(comb):
-            param_as_dict[hparam_names[idx]] = param
-        # hparam.set_values_from_dict(param_as_dict)
-        hparam = ANN_Hyperparameters(dict_params=param_as_dict)
-        hparams.append(hparam)
-    # Iterate over all possibile combinations of hyperparameters
+            hparam[hparam_names[idx]] = param
+        hparams.append(ANN_Hyperparameters(hparam))
+    # Iterate over all possible combinations of hyperparameters
     print(f'Fine-tuning of {len(hparams)} combinations')
     for hparam in hparams:
-        runs(hparam)
+        runs(hparam, name=f'ANN_TUNING_{datetime.today().strftime("%Y%m%d_%H%M%S")}')
+    print('End of ANN hyperparameters tuning')
 
 
 if __name__ == "__main__":

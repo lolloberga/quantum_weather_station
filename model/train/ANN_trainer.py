@@ -25,9 +25,9 @@ class ANN_trainer(Trainer):
 
         super().__init__(model, self.get_name(), criterion, optimizer, writer, hyperparameters)
 
-    def get_optmizer(self) -> torch.optim.Optimizer:
+    def get_optimizer(self) -> torch.optim.Optimizer:
         if self._optim is None:
-            self._optim = torch.optim.Adam(self.model.parameters(), lr=self.hyperparameters.LEARNING_RATE.value)
+            self._optim = torch.optim.Adam(self.model.parameters(), lr=self.hyperparameters['LEARNING_RATE'])
         return self._optim
 
     def get_criterion(self):
@@ -38,14 +38,14 @@ class ANN_trainer(Trainer):
     def train_loader(self, train_loader: DataLoader, test_loader: DataLoader, use_ray_tune: bool = False) \
             -> Tuple[np.array, np.array]:
 
-        train_losses = np.zeros(self.hyperparameters.NUM_EPOCHS.value)
-        test_losses = np.zeros(self.hyperparameters.NUM_EPOCHS.value)
+        train_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
+        test_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
 
-        for epoch in tqdm(range(self.hyperparameters.NUM_EPOCHS.value), desc='Train the model'):
+        for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc='Train the model'):
             self.model.train()
             current_loss = 0.0
 
-            optimizer = self.get_optmizer()
+            optimizer = self.get_optimizer()
             criterion = self.get_criterion()
 
             for i, data in enumerate(train_loader, 0):
@@ -84,13 +84,13 @@ class ANN_trainer(Trainer):
             test_losses[epoch] = val_loss
             self.writer.add_scalar("ANN - Loss/test", val_loss, epoch)
             # Communication with Ray Tune:
-            with tune.checkpoint_dir(epoch) as checkpoint_dir:
-                path = os.path.join(checkpoint_dir, "checkpoint")
-                torch.save((self.model.state_dict(), optimizer.state_dict()), path)
             if use_ray_tune:
+                with tune.checkpoint_dir(epoch) as checkpoint_dir:
+                    path = os.path.join(checkpoint_dir, "checkpoint")
+                    torch.save((self.model.state_dict(), optimizer.state_dict()), path)
                 tune.report(loss=(val_loss / val_steps)) # here you can insert accuracy too
 
-            # Draw plot predicted vs actuals (tensorboard)
+            # Draw plot predicted vs actual (tensorboard)
             if not use_ray_tune:
                 if (epoch + 1) % 10 == 0:
                     y_pred = torch.from_numpy(self.predict(test_loader.dataset.X)).reshape(-1, 1)

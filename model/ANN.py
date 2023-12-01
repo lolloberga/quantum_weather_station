@@ -55,7 +55,8 @@ class PM25AnnDataset2(torch.utils.data.Dataset):
 
 
 class MyNeuralNetwork(nn.Module):
-    def __init__(self, input_size: int, output_size: int, hidden_size: int, hidden_size_2: int = 90, hidden_size_3: int = 30):
+    def __init__(self, input_size: int, output_size: int, hidden_size: int, hidden_size_2: int = 90,
+                 hidden_size_3: int = 30):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_size, hidden_size),
@@ -72,7 +73,7 @@ class MyNeuralNetwork(nn.Module):
         return out
 
 
-def build_dataset(cfg: ConfigParser, hyperparams: ANN_Hyperparameters) -> tuple:
+def build_dataset(cfg: ConfigParser, hyperparams: dict) -> tuple:
     df_sensors = pd.read_csv(
         os.path.join(os.getcwd(), 'resources', 'dataset', 'unique_timeseries_by_median_minutes.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
@@ -97,27 +98,27 @@ def build_dataset(cfg: ConfigParser, hyperparams: ANN_Hyperparameters) -> tuple:
 
     X = df['data'].values
     y = df['pm25'].dropna().values
-    X_train = X[: int(len(X) * hyperparams.TRAIN_SIZE.value)]
-    X_test = X[int(len(X) * hyperparams.TRAIN_SIZE.value):]
-    y_train = y[: int(len(y) * hyperparams.TRAIN_SIZE.value)]
-    y_test = y[int(len(y) * hyperparams.TRAIN_SIZE.value):]
+    X_train = X[: int(len(X) * hyperparams['TRAIN_SIZE'])]
+    X_test = X[int(len(X) * hyperparams['TRAIN_SIZE']):]
+    y_train = y[: int(len(y) * hyperparams['TRAIN_SIZE'])]
+    y_test = y[int(len(y) * hyperparams['TRAIN_SIZE']):]
     # Convert to 2D PyTorch tensors
     X_train = torch.tensor(X_train, dtype=torch.float32)
     y_train = torch.tensor(y_train, dtype=torch.float32).reshape(-1, 1)
     X_test = torch.tensor(X_test, dtype=torch.float32)
     y_test = torch.tensor(y_test, dtype=torch.float32).reshape(-1, 1)
     # Convert into my dataset cutom class
-    train_dataset = PM25AnnDataset(X_train, y_train, hyperparams.INPUT_SIZE.value)
-    test_dataset = PM25AnnDataset(X_test, y_test, hyperparams.INPUT_SIZE.value)
+    train_dataset = PM25AnnDataset(X_train, y_train, hyperparams['INPUT_SIZE'])
+    test_dataset = PM25AnnDataset(X_test, y_test, hyperparams['INPUT_SIZE'])
     # Use data-loader in order to have batches
-    train_loader = DataLoader(train_dataset, batch_size=hyperparams.BATCH_SIZE.value, shuffle=False, num_workers=0,
+    train_loader = DataLoader(train_dataset, batch_size=hyperparams['BATCH_SIZE'], shuffle=False, num_workers=0,
                               sampler=SequentialSampler(train_dataset))
-    test_loader = DataLoader(test_dataset, batch_size=hyperparams.BATCH_SIZE.value, shuffle=False, num_workers=0,
+    test_loader = DataLoader(test_dataset, batch_size=hyperparams['BATCH_SIZE'], shuffle=False, num_workers=0,
                              sampler=SequentialSampler(test_dataset))
     return train_loader, test_loader, df_arpa
 
 
-def build_dataset_2(cfg: ConfigParser, hyperparams: ANN_Hyperparameters) -> tuple:
+def build_dataset_2(cfg: ConfigParser, hyperparams: dict) -> tuple:
     df_sensors = pd.read_csv(
         os.path.join(os.getcwd(), 'resources', 'dataset', 'unique_timeseries_by_median_minutes.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
@@ -150,9 +151,9 @@ def build_dataset_2(cfg: ConfigParser, hyperparams: ANN_Hyperparameters) -> tupl
 
     X = df.loc[:, df.columns != "arpa"]
     y = df['arpa']
-    X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, train_size=hyperparams.TRAIN_SIZE.value,
+    X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, train_size=hyperparams['TRAIN_SIZE'],
                                                         shuffle=False,
-                                                        random_state=hyperparams.RANDOM_STATE.value)
+                                                        random_state=hyperparams['RANDOM_STATE'])
     # Convert to 2D PyTorch tensors
     X_train = torch.tensor(X_train, dtype=torch.float32)
     y_train = torch.tensor(y_train, dtype=torch.float32).reshape(-1, 1)
@@ -162,12 +163,11 @@ def build_dataset_2(cfg: ConfigParser, hyperparams: ANN_Hyperparameters) -> tupl
     train_dataset = PM25AnnDataset2(X_train, y_train)
     test_dataset = PM25AnnDataset2(X_test, y_test)
     # Use data-loader in order to have batches
-    train_loader = DataLoader(train_dataset, batch_size=hyperparams.BATCH_SIZE.value, shuffle=False, num_workers=0,
+    train_loader = DataLoader(train_dataset, batch_size=hyperparams['BATCH_SIZE'], shuffle=False, num_workers=0,
                               sampler=RandomSampler(train_dataset))
-    test_loader = DataLoader(test_dataset, batch_size=hyperparams.BATCH_SIZE.value, shuffle=False, num_workers=0,
+    test_loader = DataLoader(test_dataset, batch_size=hyperparams['BATCH_SIZE'], shuffle=False, num_workers=0,
                              sampler=RandomSampler(test_dataset))
     return train_loader, test_loader, df_arpa
-
 
 
 def main():
@@ -177,7 +177,7 @@ def main():
     # Prepare dataset
     train_loader, test_loader, df_arpa = build_dataset_2(cfg, hyperparams)
     # Instantiate the model
-    model = MyNeuralNetwork(hyperparams.INPUT_SIZE.value, hyperparams.OUTPUT_SIZE.value, hyperparams.HIDDEN_SIZE.value)
+    model = MyNeuralNetwork(hyperparams['INPUT_SIZE'], hyperparams['OUTPUT_SIZE'], hyperparams['HIDDEN_SIZE'])
     # Instantiate the trainer
     trainer = ANN_trainer(model, name='ANN')
     train_losses, test_losses = trainer.train_loader(train_loader, test_loader)
@@ -205,7 +205,7 @@ def main():
     ax.plot(plot_df['pred'], label='Predicted pm25', linewidth=1)
     ax.set_xlabel('timestamp')
     ax.set_ylabel(r'$\mu g/m^3$')
-    ax.set_title(f'ANN Performance - {hyperparams.NUM_EPOCHS.value} epochs')
+    ax.set_title(f'ANN Performance - {hyperparams["NUM_EPOCHS"]} epochs')
     ax.legend(loc='lower right')
     fig.tight_layout()
     trainer.save_image('ANN - Performance', fig)

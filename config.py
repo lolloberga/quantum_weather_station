@@ -27,6 +27,7 @@ class ConfigParser:
     def _define_constants(self) -> None:
         self._consts = dict()
 
+        self._consts['MAIN_PATH'] = ROOT_DIR
         self._consts['RESOURCE_PATH'] = os.path.join(ROOT_DIR, self._config['resouces']['path']) if \
             self._config['resouces']['path'] is not None else os.path.join(ROOT_DIR, "resources")
         self._consts['DATASET_PATH'] = os.path.join(ROOT_DIR, self._config['dataset']['path']) if \
