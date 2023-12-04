@@ -1,4 +1,3 @@
-import os
 from typing import Tuple
 
 import numpy as np
@@ -12,7 +11,7 @@ from model.train.base.hyperparameters import Hyperparameters
 from model.train.base.trainer import Trainer
 from model.train.hyperparams.ann_hyperparams import ANN_Hyperparameters
 from utils.tensorboard_utils import TensorboardUtils
-from ray import tune
+# from ray import tune
 
 
 class ANN_trainer(Trainer):
@@ -84,11 +83,11 @@ class ANN_trainer(Trainer):
             test_losses[epoch] = val_loss
             self.writer.add_scalar("ANN - Loss/test", val_loss, epoch)
             # Communication with Ray Tune:
-            if use_ray_tune:
+            ''' if use_ray_tune:
                 with tune.checkpoint_dir(epoch) as checkpoint_dir:
                     path = os.path.join(checkpoint_dir, "checkpoint")
                     torch.save((self.model.state_dict(), optimizer.state_dict()), path)
-                tune.report(loss=(val_loss / val_steps)) # here you can insert accuracy too
+                tune.report(loss=(val_loss / val_steps)) # here you can insert accuracy too '''
 
             # Draw plot predicted vs actual (tensorboard)
             if not use_ray_tune:
