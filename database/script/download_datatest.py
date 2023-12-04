@@ -1,4 +1,4 @@
-from config import ConfigParser
+from config.config_parser import ConfigParser
 import requests
 import json
 import shutil

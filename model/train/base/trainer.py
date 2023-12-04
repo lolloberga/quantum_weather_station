@@ -10,7 +10,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from config import ConfigParser
+from config.config_parser import ConfigParser
 from model.train.base.hyperparameters import Hyperparameters
 from model.train.hyperparams.default_hyperparams import DefaultHyperparameters
 

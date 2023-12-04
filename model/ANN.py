@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from config import ConfigParser
+from config.config_parser import ConfigParser
 from model.train.ANN_trainer import ANN_trainer
 from model.train.hyperparams.ann_hyperparams import ANN_Hyperparameters
 from utils.dataset_utils import DatasetUtils

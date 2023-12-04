@@ -5,7 +5,7 @@ import os
 
 ROOT_DIR = os.path.dirname(
     os.path.abspath(__file__)
-)
+).replace('/config', '')
 
 
 class ConfigParser:
@@ -51,6 +51,6 @@ class ConfigParser:
             self._config['dataset']['checkpoint_path'] is not None else self._consts['RESOURCE_PATH']
 
         self._consts['MODEL_DRAWS_PATH'] = os.path.join(ROOT_DIR, self._config['model']['draws_path']) if \
-            self._config['model']['draws_path'] is not None else os.path.join(ROOT_DIR, "model", "draws")
+            self._config['model']['draws_path'] is not None else os.path.join(ROOT_DIR, "../model", "draws")
         self._consts['MODEL_CHECKPOINT_PATH'] = os.path.join(ROOT_DIR, self._config['model']['checkpoint_path']) if \
-            self._config['model']['checkpoint_path'] is not None else os.path.join(ROOT_DIR, "model", "checkpoints")
+            self._config['model']['checkpoint_path'] is not None else os.path.join(ROOT_DIR, "../model", "checkpoints")

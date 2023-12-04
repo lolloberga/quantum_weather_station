@@ -12,7 +12,7 @@ from torch import nn
 from torch.utils.data import DataLoader, RandomSampler
 from tqdm import tqdm
 
-from config import ConfigParser
+from config.config_parser import ConfigParser
 from model.ANN import PM25AnnDataset2, MyNeuralNetwork
 from model.train.ANN_trainer import ANN_trainer
 from model.train.base.hyperparameters import Hyperparameters

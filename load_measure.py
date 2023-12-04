@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from dataset.interface.db_interface import DBInterface, MySQLUrl
 from dataset.model.measure_temporary import MeasureTemporary
 from dataset.script.download_datatest import DownloadDataset
-from config import ConfigParser
+from config.config_parser import ConfigParser
 from tqdm import tqdm
 import os
 import json

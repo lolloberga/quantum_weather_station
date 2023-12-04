@@ -1,4 +1,4 @@
-from config import ConfigParser
+from config.config_parser import ConfigParser
 import os
 import pandas as pd
 import numpy as np
@@ -8,7 +8,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-from config import ConfigParser
+from config.config_parser import ConfigParser
 from model.train.LSTM_trainer import LSTM_trainer
 from model.train.hyperparams.lstm_hyperparams import LSTM_Hyperparameters
 from utils.dataset_utils import DatasetUtils
