@@ -28,7 +28,7 @@ class LSTM_trainer(Trainer):
         super().__init__(model, self.get_name(), criterion, optimizer, writer, hyperparameters)
 
     def get_name(self) -> str:
-        return 'lstm_approach_1' if self._name is None else self._name
+        return 'LSTM_approach' if self._name is None else self._name
 
     def get_optimizer(self) -> torch.optim.Optimizer:
         if self._optim is None:
@@ -63,7 +63,7 @@ class LSTM_trainer(Trainer):
             # Forward pass
             outputs = self.model(X_train)
             loss = criterion(outputs, y_train)
-            self.writer.add_scalar("Loss/train", loss, epoch)
+            self.writer.add_scalar(self.get_name() + " - Loss/train", loss, epoch)
 
             # Backpropagation
             loss.backward()
@@ -75,12 +75,12 @@ class LSTM_trainer(Trainer):
             # Test loss
             test_outputs = self.model(X_test)
             test_loss = criterion(test_outputs, y_test)
-            self.writer.add_scalar("Loss/test", test_loss, epoch)
+            self.writer.add_scalar(self.get_name() + " - Loss/test", test_loss, epoch)
             test_losses[epoch] = test_loss.item()
 
             # Draw plot predicted vs actuals (tensorboard)
             if (epoch + 1) % 10 == 0:
-                self.writer.add_figure('LSTM - Predicted vs Actual',
+                self.writer.add_figure(self.get_name() + ' - Predicted vs Actual',
                                        TensorboardUtils.draw_prediction_tensorboard(test_outputs, y_test, epoch),
                                        global_step=epoch+1)
 

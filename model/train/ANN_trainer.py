@@ -65,7 +65,7 @@ class ANN_trainer(Trainer):
                     self.writer.add_graph(self.model, input_to_model=data[0], verbose=False)
 
             train_losses[epoch] = current_loss
-            self.writer.add_scalar("ANN - Loss/train", current_loss, epoch)
+            self.writer.add_scalar(self.get_name() + " - Loss/train", current_loss, epoch)
 
             # Evaluate accuracy at end of each epoch
             self.model.eval()
@@ -81,7 +81,7 @@ class ANN_trainer(Trainer):
                 val_steps += 1
 
             test_losses[epoch] = val_loss
-            self.writer.add_scalar("ANN - Loss/test", val_loss, epoch)
+            self.writer.add_scalar(self.get_name() + " - Loss/test", val_loss, epoch)
             # Communication with Ray Tune:
             ''' if use_ray_tune:
                 with tune.checkpoint_dir(epoch) as checkpoint_dir:
@@ -93,7 +93,7 @@ class ANN_trainer(Trainer):
             if not use_ray_tune:
                 if (epoch + 1) % 10 == 0:
                     y_pred = torch.from_numpy(self.predict(test_loader.dataset.X)).reshape(-1, 1)
-                    self.writer.add_figure('ANN - Predicted vs Actual',
+                    self.writer.add_figure(self.get_name() + ' - Predicted vs Actual',
                                            TensorboardUtils.draw_prediction_tensorboard(y_pred, test_loader.dataset.y, epoch),
                                            global_step=epoch+1)
 
@@ -118,4 +118,4 @@ class ANN_trainer(Trainer):
         return np.array(test_predictions)
 
     def get_name(self) -> str:
-        return 'ann_' if self._name is None else self._name
+        return 'ANN' if self._name is None else self._name
