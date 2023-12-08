@@ -11,7 +11,9 @@ ANN_defaults_hyperparams = {
     'OUTPUT_SIZE': 1,
     'LEARNING_RATE': 0.0001,
     'NUM_EPOCHS': 20,
-    'BATCH_SIZE': 2
+    'BATCH_SIZE': 2,
+    'MOMENTUM': 0.9,
+    'WEIGHT_DECAY': 0
 }
 
 

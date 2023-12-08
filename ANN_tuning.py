@@ -110,7 +110,7 @@ def choose_optimizer(hyperparams: dict, model: nn.Module) -> torch.optim:
     if hyperparams['OPTIMIZER'] is not None and isinstance(hyperparams['OPTIMIZER'], str):
         if hyperparams['OPTIMIZER'].lower() == 'adam':
             optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams['LEARNING_RATE'])
-        elif hyperparams['OPTIMIZER'].lower() == 'sdg':
+        elif hyperparams['OPTIMIZER'].lower() == 'sgd':
             optimizer = torch.optim.SGD(model.parameters(), lr=hyperparams['LEARNING_RATE'],
                                         momentum=hyperparams['MOMENTUM'], weight_decay=hyperparams['WEIGHT_DECAY'])
         else:
@@ -159,13 +159,13 @@ def runs(hyperparams: ANN_Hyperparameters,
 def main():
     print('Start ANN hyperparameters tuning')
     # Get configuration space
-    epochs = [2]
-    batches = [2, 4]
-    lr = [0.0001]
-    h1 = [128]
-    h2 = [90]
-    h3 = [30]
-    optimizer = ['adam']
+    epochs = [200, 400, 500]
+    batches = [2, 4, 10, 15]
+    lr = [0.0001, 0.001, 0.01]
+    h1 = [128, 90, 60]
+    h2 = [90, 40, 30]
+    h3 = [30, 20, 10]
+    optimizer = ['adam', 'sgd']
     criterion = ['rmse', 'mse', 'l1']
     hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE', 'HIDDEN_SIZE', 'HIDDEN_SIZE_2', 'HIDDEN_SIZE_3',
                     'OPTIMIZER', 'CRITERION']
