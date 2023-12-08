@@ -3,10 +3,13 @@ from model.train.base.hyperparameters import Hyperparameters
 
 
 LSTM_defaults_hyperparams = {
+    'TRAIN_SIZE': 0.7,
     'LEARNING_RATE': 0.01,
     'NUM_EPOCHS': 300,
     'HIDDEN_SIZE': 512,
     'OUTPUT_SIZE': 1,
+    'MOMENTUM': 0.9,
+    'WEIGHT_DECAY': 1e-4,
     'T': 5  # Number of hours to look while predicting
 }
 

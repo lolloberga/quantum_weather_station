@@ -1,5 +1,3 @@
-import os
-from datetime import datetime
 from typing import Tuple
 
 import numpy as np
@@ -33,7 +31,7 @@ class LSTM_trainer(Trainer):
     def get_optimizer(self) -> torch.optim.Optimizer:
         if self._optim is None:
             self._optim = torch.optim.SGD(self.model.parameters(), lr=self.hyperparameters['LEARNING_RATE'],
-                                          momentum=0.9, weight_decay=1e-4)
+                                          momentum=self.hyperparameters['MOMENTUM'], weight_decay=1e-4)
         return self._optim
 
     def get_criterion(self):
@@ -47,7 +45,6 @@ class LSTM_trainer(Trainer):
         # Draw the graph
         self.writer.add_graph(self.model, X_train)
 
-        self.model.train()
         train_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
         test_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
 
@@ -58,6 +55,7 @@ class LSTM_trainer(Trainer):
         criterion = self.get_criterion()
 
         for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc='Train the LSTM model'):
+            self.model.train()
             optimizer.zero_grad()
 
             # Forward pass
@@ -73,6 +71,7 @@ class LSTM_trainer(Trainer):
             train_losses[epoch] = loss.item()
 
             # Test loss
+            self.model.eval()
             test_outputs = self.model(X_test)
             test_loss = criterion(test_outputs, y_test)
             self.writer.add_scalar(self.get_name() + " - Loss/test", test_loss, epoch)
