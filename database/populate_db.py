@@ -1,18 +1,18 @@
-from dataset.interface.db_interface import DBInterface, SQLiteUrl, MySQLUrl
-from dataset.service.boards_service import BoardService
-from dataset.service.logical_sensors_service import LogicalSensorService
-from dataset.service.unit_of_measure_service import UnitOfMeasureService
-from dataset.model.board import Board
-from dataset.model.logical_sensor import LogicalSensor
-from dataset.model.unit_of_measure import UnitOfMeasure
 import json
-
-from sqlalchemy import create_engine
-
 import os
+
+from database.interface.db_interface import DBInterface, MySQLUrl
+from database.model.board import Board
+from database.model.logical_sensor import LogicalSensor
+from database.model.unit_of_measure import UnitOfMeasure
+from database.service.boards_service import BoardService
+from database.service.logical_sensors_service import LogicalSensorService
+from database.service.unit_of_measure_service import UnitOfMeasureService
+
 ROOT_DIR = os.path.dirname(
     os.path.abspath(__file__)
 )
+
 
 ########
 # THIS IS A GARBAGE SCRIPT USED TO CRATE A MOCKUP DB
@@ -33,7 +33,7 @@ def main():
     measures = {
         "pm25": "mu_g/m^3",
         "pm10": "mu_g/m^3",
-        "rh" : "%",
+        "rh": "%",
         "temp": "°C",
         "pres": "hpa",
         "gps_lat": "deg",
@@ -43,23 +43,22 @@ def main():
     # start transaction
     with db.Session() as session:
         # create unit of measure
-        uom_to_id={}
+        uom_to_id = {}
         for name, unit in measures.items():
-            uom = UnitOfMeasure(measureName = name, unitOfMeasure=unit)
+            uom = UnitOfMeasure(measureName=name, unitOfMeasure=unit)
             uom = UnitOfMeasureService.create(session, uom)
             uom_to_id[name] = uom.unitId
-        
 
         # create boards
         with open(os.path.join(ROOT_DIR, "resources", "board.json")) as f:
             board_confs = json.load(f)
-        for conf in board_confs:        
-            board = Board(boardId = conf["board_id"])
+        for conf in board_confs:
+            board = Board(boardId=conf["board_id"])
             print(board.boardId)
             BoardService.create_board(session, board)
 
         # create sensors
-        for conf in board_confs:        
+        for conf in board_confs:
             keys = set(conf.keys())
             keys.remove("board_id")
             board_id = conf["board_id"]
@@ -72,7 +71,3 @@ def main():
                     LogicalSensorService.create(session, ls)
 
         session.commit()
-
-
-if __name__ == "__main__":
-    main()

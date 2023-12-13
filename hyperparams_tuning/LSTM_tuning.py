@@ -144,6 +144,3 @@ def main():
         runs(hparam, name=f'LSTM_TUNING_{datetime.today().strftime("%Y%m%d_%H%M%S")}')
     print('End of LSTM hyperparameters tuning')
 
-
-if __name__ == "__main__":
-    main()

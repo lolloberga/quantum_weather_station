@@ -148,7 +148,3 @@ def main():
     ax.legend(loc='lower right')
     fig.tight_layout()
     trainer.save_image('LSTM_+1hour_arpa - Performance', fig)
-
-
-if __name__ == "__main__":
-    main()

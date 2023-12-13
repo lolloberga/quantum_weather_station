@@ -1,14 +1,15 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from dataset.interface.db_interface import DBInterface, MySQLUrl
-from dataset.model.measure_temporary import MeasureTemporary
-from dataset.script.download_datatest import DownloadDataset
-from config.config_parser import ConfigParser
-from tqdm import tqdm
-import os
-import json
 import csv
+import json
+import os
 from datetime import datetime
+
+from sqlalchemy.orm import Session
+from tqdm import tqdm
+
+from config.config_parser import ConfigParser
+from database.interface.db_interface import DBInterface, MySQLUrl
+from database.model.measure_temporary import MeasureTemporary
+from database.script.download_datatest import DownloadDataset
 
 ROOT_DIR = os.path.dirname(
     os.path.abspath(__file__)
@@ -17,12 +18,13 @@ ROOT_DIR = os.path.dirname(
 MEASURES = {
     "pm25": "mu_g/m^3",
     "pm10": "mu_g/m^3",
-    "rh" : "%",
+    "rh": "%",
     "temp": "°C",
     "pres": "hpa",
     "gps_lat": "deg",
     "gps_lon": "deg"
 }
+
 
 def main():
     # get configurations
@@ -46,7 +48,8 @@ def main():
     dd.download_with_map_file()
 
     # connect to db
-    url = MySQLUrl(cfg['database']['db_name'], cfg['database']['user'], cfg['database']['password'], cfg['database']['url'], cfg['database']['port']).get_url()
+    url = MySQLUrl(cfg['database']['db_name'], cfg['database']['user'], cfg['database']['password'],
+                   cfg['database']['url'], cfg['database']['port']).get_url()
     db = DBInterface(url, echo=True)
 
     # start transaction
@@ -55,13 +58,14 @@ def main():
             if not filename.is_file() and filename.name.startswith(FOLDER_NAME_PREFIX):
                 board_number = int(filename.name.split(FOLDER_NAME_PREFIX)[1])
                 board = _find_board_by_id(BOARD_CONFIG_FILE, board_number)
-                #print(filename.path, board_number, board)
+                # print(filename.path, board_number, board)
                 if board is None:
                     continue
-                
+
                 # open CSV file
                 for csv_file in os.scandir(filename.path):
-                    if csv_file.is_file() and csv_file.name.endswith('.csv') and csv_file.name.startswith(SENSOR_NAME_PREFIX):
+                    if csv_file.is_file() and csv_file.name.endswith('.csv') and csv_file.name.startswith(
+                            SENSOR_NAME_PREFIX):
                         sensor_id = os.path.splitext(csv_file.name)[0].split(SENSOR_NAME_PREFIX)[1]
                         try:
                             sensor_id = int(sensor_id)
@@ -69,10 +73,12 @@ def main():
                             measure = _check_sensor_id_into_board(sensor_id, board)
                             if measure is not None:
                                 # check if the CSV was already uploaded
-                                if not _find_measures_checkpoint(UPLOAD_MEASURES_CHECKPOINT_PATH, board_number, sensor_id):
+                                if not _find_measures_checkpoint(UPLOAD_MEASURES_CHECKPOINT_PATH, board_number,
+                                                                 sensor_id):
                                     # load into temporary table
                                     print(f'Upload sensor {sensor_id}({measure})')
-                                    uploaded_rows = _load_to_temp_table(session, csv_file.path, sensor_id, skip_first=True)
+                                    uploaded_rows = _load_to_temp_table(session, csv_file.path, sensor_id,
+                                                                        skip_first=True)
                                     # upadte checkpoints file
                                     points = {
                                         "board_id": board_number,
@@ -86,15 +92,16 @@ def main():
                                     # commit on database
                                     session.commit()
                                 else:
-                                    print(f'Sensor {sensor_id} in Board {board_number} already uploaded ({csv_file.name})')
+                                    print(
+                                        f'Sensor {sensor_id} in Board {board_number} already uploaded ({csv_file.name})')
                         except ValueError:
                             continue
                 session.commit()
-    
+
     print('Finish push into temporary measures')
 
 
-def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, skip_first:bool = True) -> int:
+def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, skip_first: bool = True) -> int:
     with open(csv_file) as f:
         csv_reader = csv.reader(f, delimiter=',')
         line_count = 0
@@ -110,6 +117,7 @@ def _load_to_temp_table(session: Session, csv_file: str, sensor_id: id, skip_fir
                     session.add(mt)
         print(f'- Loaded {line_count} rows')
         return line_count
+
 
 def _find_measures_checkpoint(path: str, board_id: int, sensor_id: int) -> bool:
     checkpoints = _load_upload_measures_checkpoint(path)
@@ -155,7 +163,3 @@ def _check_sensor_id_into_board(sensor_id: int, board: dict) -> str:
             if sensor_id in board[measure]:
                 return measure
     return None
-
-
-if __name__ == "__main__":
-    main()

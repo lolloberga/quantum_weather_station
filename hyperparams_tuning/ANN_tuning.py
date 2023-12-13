@@ -183,6 +183,3 @@ def main():
         runs(hparam, name=f'ANN_TUNING_{datetime.today().strftime("%Y%m%d_%H%M%S")}')
     print('End of ANN hyperparameters tuning')
 
-
-if __name__ == "__main__":
-    main()
