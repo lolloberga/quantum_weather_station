@@ -13,11 +13,11 @@ from tqdm import tqdm
 
 from config.config_parser import ConfigParser
 from model.ANN import PM25AnnDataset2, MyNeuralNetwork
-from model.loss_functions.RMSELoss import RMSELoss
 from model.train.ANN_trainer import ANN_trainer
 from model.train.base.trainer import Trainer
 from model.train.hyperparams.ann_hyperparams import ANN_Hyperparameters
 from utils.dataset_utils import DatasetUtils
+from utils.tuning_utils import TuningUtils
 
 # Define constants
 START_DATE_BOARD = '2022-11-03'
@@ -105,33 +105,6 @@ def plot_performance(model: nn.Module, test_loader: DataLoader, df_arpa: pd.Data
     trainer.save_image('ANN - Performance', fig)
 
 
-def choose_optimizer(hyperparams: dict, model: nn.Module) -> torch.optim:
-    optimizer = None
-    if hyperparams['OPTIMIZER'] is not None and isinstance(hyperparams['OPTIMIZER'], str):
-        if hyperparams['OPTIMIZER'].lower() == 'adam':
-            optimizer = torch.optim.Adam(model.parameters(), lr=hyperparams['LEARNING_RATE'])
-        elif hyperparams['OPTIMIZER'].lower() == 'sgd':
-            optimizer = torch.optim.SGD(model.parameters(), lr=hyperparams['LEARNING_RATE'],
-                                        momentum=hyperparams['MOMENTUM'], weight_decay=hyperparams['WEIGHT_DECAY'])
-        else:
-            raise ValueError(f'Unknown optimizer {hyperparams["OPTIMIZER"]}')
-    return optimizer
-
-
-def choose_criterion(hyperparams: dict):
-    criterion = None
-    if hyperparams['CRITERION'] is not None and isinstance(hyperparams['CRITERION'], str):
-        if hyperparams['CRITERION'].lower() == 'mse':
-            criterion = nn.MSELoss()
-        elif hyperparams['CRITERION'].lower() == 'l1':
-            criterion = nn.L1Loss()
-        elif hyperparams['CRITERION'].lower() == 'rmse':
-            criterion = RMSELoss()
-        else:
-            raise ValueError(f'Unknown criterion {hyperparams["CRITERION"]}')
-    return criterion
-
-
 def runs(hyperparams: ANN_Hyperparameters,
          name: str = 'ANN_TUNING_test') -> None:
     # Get project configurations
@@ -143,8 +116,8 @@ def runs(hyperparams: ANN_Hyperparameters,
     model = MyNeuralNetwork(60, 1, hyperparams['HIDDEN_SIZE'], hyperparams['HIDDEN_SIZE_2'],
                             hyperparams['HIDDEN_SIZE_3'])
     # Get the correct optimizer and criterion
-    optimizer = choose_optimizer(hyperparams.hyperparameters, model)
-    criterion = choose_criterion(hyperparams.hyperparameters)
+    optimizer = TuningUtils.choose_optimizer(hyperparams.hyperparameters, model)
+    criterion = TuningUtils.choose_criterion(hyperparams.hyperparameters)
     # Instantiate the trainer
     trainer = ANN_trainer(model, name=name, hyperparameters=hyperparams, optimizer=optimizer, criterion=criterion)
     train_losses, test_losses = trainer.train_loader(train_loader, test_loader)
