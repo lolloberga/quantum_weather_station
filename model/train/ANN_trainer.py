@@ -64,8 +64,8 @@ class ANN_trainer(Trainer):
                 if epoch == 0 and i == 0:
                     self.writer.add_graph(self.model, input_to_model=data[0], verbose=False)
 
-            train_losses[epoch] = current_loss
-            self.writer.add_scalar(self.get_name() + " - Loss/train", current_loss, epoch)
+            train_losses[epoch] = current_loss / len(train_loader)
+            self.writer.add_scalar(self.get_name() + " - Loss/train", current_loss / len(train_loader), epoch)
 
             # Evaluate accuracy at end of each epoch
             self.model.eval()
@@ -80,8 +80,8 @@ class ANN_trainer(Trainer):
                 val_loss += test_loss.item()
                 val_steps += 1
 
-            test_losses[epoch] = val_loss
-            self.writer.add_scalar(self.get_name() + " - Loss/test", val_loss, epoch)
+            test_losses[epoch] = val_loss / len(test_loader)
+            self.writer.add_scalar(self.get_name() + " - Loss/test", val_loss / len(test_loader), epoch)
             # Communication with Ray Tune:
             ''' if use_ray_tune:
                 with tune.checkpoint_dir(epoch) as checkpoint_dir:
