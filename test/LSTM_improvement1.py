@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -21,7 +22,7 @@ from utils.tuning_utils import TuningUtils
 START_DATE_BOARD = '2022-11-03'
 END_DATE_BOARD = '2023-06-15'
 RANDOM_STATE = 42
-NAME = 'LSTM_#1'
+NAME = f'LSTM_#1_{datetime.today().strftime("%Y%m%d_%H%M%S")}'
 
 
 def build_dataset(cfg: ConfigParser, hyperparams: dict) -> tuple:
