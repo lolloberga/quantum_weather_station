@@ -1,19 +1,19 @@
-from dataset.service.board_config_service import BoardConfigService
-from dataset.service.board_experiments_service import BoardExperiment
-from dataset.service.boards_service import BoardService
-from dataset.service.logical_physical_connection_service import LogicalPhysicalConnectionService
-from dataset.service.experiments_service import ExperimentsService
-from dataset.service.five_min_avg_measure_service import FiveMinAvgMeasureService
-from dataset.service.hour_avg_measure_service import HourAvgMeasureService
-from dataset.service.logical_sensors_service import LogicalSensorService
-from dataset.service.measure_service import MeasureService, MeasureEncoder
-from dataset.service.models_service import ModelsService
-from dataset.service.param_type_service import ParamTypeService
-from dataset.service.physical_sensors_service import PhysicalSensorService
-from dataset.service.unit_of_measure_service import UnitOfMeasureService
-#from dataset.service.user_service import UserService
+from database.service.board_config_service import BoardConfigService
+from database.service.board_experiments_service import BoardExperiment
+from database.service.boards_service import BoardService
+from database.service.logical_physical_connection_service import LogicalPhysicalConnectionService
+from database.service.experiments_service import ExperimentsService
+from database.service.five_min_avg_measure_service import FiveMinAvgMeasureService
+from database.service.hour_avg_measure_service import HourAvgMeasureService
+from database.service.logical_sensors_service import LogicalSensorService
+from database.service.measure_service import MeasureService, MeasureEncoder
+from database.service.models_service import ModelsService
+from database.service.param_type_service import ParamTypeService
+from database.service.physical_sensors_service import PhysicalSensorService
+from database.service.unit_of_measure_service import UnitOfMeasureService
+# from dataset.service.user_service import UserService
 
 # # CTE specific
-from dataset.service.packet_service import PacketService
-from dataset.service.packet_summary_service import PacketSummaryService
-from dataset.service.packet_measure_service import PacketMeasureService
+from database.service.packet_service import PacketService
+from database.service.packet_summary_service import PacketSummaryService
+from database.service.packet_measure_service import PacketMeasureService
