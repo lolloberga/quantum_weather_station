@@ -1,6 +1,4 @@
-import itertools
 import os
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -13,7 +11,6 @@ from model.train.LSTM_trainer import LSTM_trainer
 from model.train.hyperparams.lstm_hyperparams import LSTM_Hyperparameters
 from utils.dataset_utils import DatasetUtils
 from utils.tuning_utils import TuningUtils
-
 
 """
     THIS PYTHON SCRIPT IS RELATED TO TEST A PARTICULAR COMBINATION OF DATASET AND HYPERPARAMS.
@@ -128,7 +125,3 @@ def main() -> None:
     fig.tight_layout()
     trainer.save_image('LSTM_+1hour_arpa - Performance', fig)
     print(f'End {NAME}')
-
-
-if __name__ == '__main__':
-    main()
