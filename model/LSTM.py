@@ -144,7 +144,7 @@ def main():
     ax.plot(plot_df['pred'], label='Predicted pm25', linewidth=1)
     ax.set_xlabel('timestamp')
     ax.set_ylabel(r'$\mu g/m^3$')
-    ax.set_title(f'LSTM Performance - {hyperparams.NUM_EPOCHS.value} epochs - T = {hyperparams["T"]}')
+    ax.set_title(f'LSTM Performance - {hyperparams["NUM_EPOCHS"]} epochs - T = {hyperparams["T"]}')
     ax.legend(loc='lower right')
     fig.tight_layout()
     trainer.save_image('LSTM_+1hour_arpa - Performance', fig)

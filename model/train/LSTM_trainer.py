@@ -54,7 +54,7 @@ class LSTM_trainer(Trainer):
         optimizer = self.get_optimizer()
         criterion = self.get_criterion()
 
-        for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc='Train the LSTM model'):
+        for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc=f'Training the {self.get_name()} model'):
             self.model.train()
             optimizer.zero_grad()
 
