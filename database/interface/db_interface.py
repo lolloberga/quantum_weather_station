@@ -3,11 +3,11 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy_utils import database_exists, create_database
 
 # this import adds metadata on ORM mappping
-from dataset.model.base.database import Base
+from database.model.base.database import Base
 
 # usefull to pupulate metadata object
-import dataset.model
-import dataset.view
+import database.model
+import database.view
 
 
 class DBUrl():

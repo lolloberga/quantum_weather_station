@@ -6,14 +6,14 @@ import base64
 from enum import IntEnum
 from utils.db_utils import unix_to_datetime, object_as_dict
 
-from dataset.model.board import Board
-from dataset.model.board_experiment import BoardExperiment
-from dataset.model.logical_sensor import LogicalSensor
-from dataset.model.measure import Measure
-from dataset.model.physical_sensor import PhysicalSensor
+from database.model.board import Board
+from database.model.board_experiment import BoardExperiment
+from database.model.logical_sensor import LogicalSensor
+from database.model.measure import Measure
+from database.model.physical_sensor import PhysicalSensor
 
 
-from dataset.view.five_min_avg_measure import FiveMinAvgMeasure
+from database.view.five_min_avg_measure import FiveMinAvgMeasure
 import struct
 from sqlalchemy import func, or_, and_, types
 from sqlalchemy.sql import expression

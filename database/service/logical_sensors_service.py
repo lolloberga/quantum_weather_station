@@ -1,9 +1,9 @@
 from typing import List
 from sqlalchemy import select, and_, func
 from sqlalchemy.orm import Session
-from dataset.model.logical_sensor import LogicalSensor
-from dataset.model.physical_sensor import PhysicalSensor
-from dataset.model.board import Board
+from database.model.logical_sensor import LogicalSensor
+from database.model.physical_sensor import PhysicalSensor
+from database.model.board import Board
 
 
 class LogicalSensorService:

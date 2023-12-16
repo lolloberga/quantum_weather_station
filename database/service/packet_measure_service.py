@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
-from dataset.model.packet import Packet
-from dataset.model.packet_measure import PacketMeasure
-from dataset.model.packet_connection import PacketConnection
-from dataset.model.packet_summary import PacketSummary
-from dataset.service.packet_summary_service import PacketSummaryService
+from database.model.packet import Packet
+from database.model.packet_measure import PacketMeasure
+from database.model.packet_connection import PacketConnection
+from database.model.packet_summary import PacketSummary
+from database.service.packet_summary_service import PacketSummaryService
 from sqlalchemy.sql.selectable import Select
 from sqlalchemy import insert, select, and_
 from typing import List, Dict, Any

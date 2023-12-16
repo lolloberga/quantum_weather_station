@@ -1,4 +1,4 @@
-from dataset.model.base.database import Base
+from database.model.base.database import Base
 from sqlalchemy import Column, DateTime, Integer, ForeignKey, Float
 from sqlalchemy.dialects.mysql import DATETIME
 

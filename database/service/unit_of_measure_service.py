@@ -1,5 +1,5 @@
 from typing import List
-from dataset.model.unit_of_measure import UnitOfMeasure
+from database.model.unit_of_measure import UnitOfMeasure
 from sqlalchemy.orm import Session
 
 

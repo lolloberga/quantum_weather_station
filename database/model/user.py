@@ -1,4 +1,4 @@
-from dataset.model.base.database import Base
+from database.model.base.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, BigInteger, Integer, Boolean, String, Date
 

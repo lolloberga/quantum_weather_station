@@ -1,5 +1,5 @@
-from dataset.model.base.database import Base
-from dataset.model.param_type import ParamType
+from database.model.base.database import Base
+from database.model.param_type import ParamType
 from sqlalchemy import Column, DateTime, Integer, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.mysql import DATETIME
 

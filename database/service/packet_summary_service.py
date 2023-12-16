@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from dataset.model.packet_summary import PacketSummary
-from dataset.model.packet_connection import PacketConnection
-from dataset.model.packet import Packet
+from database.model.packet_summary import PacketSummary
+from database.model.packet_connection import PacketConnection
+from database.model.packet import Packet
 from sqlalchemy import select, and_, func, join
 from typing import List
 from datetime import datetime

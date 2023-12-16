@@ -1,7 +1,7 @@
-from dataset.model.base.database import Base
+from database.model.base.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, BigInteger, Integer, Float, String
-from dataset.model.board_experiment import BoardExperiment
+from database.model.board_experiment import BoardExperiment
 
 
 class Experiment(Base):

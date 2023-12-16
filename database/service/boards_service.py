@@ -1,10 +1,10 @@
 from typing import List, Tuple
 from sqlalchemy.orm import Session
-from dataset.model.board import Board
-from dataset.model.physical_sensor import PhysicalSensor
-from dataset.model.logical_sensor import LogicalSensor
-from dataset.model.unit_of_measure import UnitOfMeasure
-from dataset.service.board_experiments_service import BoardExperimentsService
+from database.model.board import Board
+from database.model.physical_sensor import PhysicalSensor
+from database.model.logical_sensor import LogicalSensor
+from database.model.unit_of_measure import UnitOfMeasure
+from database.service.board_experiments_service import BoardExperimentsService
 import geopy.distance
 import time
 

@@ -3,9 +3,9 @@ from typing import List
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from dataset.model.board import Board
-from dataset.model.experiment import Experiment
-from dataset.model.board_experiment import BoardExperiment
+from database.model.board import Board
+from database.model.experiment import Experiment
+from database.model.board_experiment import BoardExperiment
 from operator import and_, or_
 
 

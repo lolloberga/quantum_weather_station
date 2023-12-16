@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.orm import Session
-from dataset.model.experiment import Experiment
+from database.model.experiment import Experiment
 
 
 class ExperimentsService:

@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.orm import Session
-from dataset.model.board_config import BoardConfig
+from database.model.board_config import BoardConfig
 from sqlalchemy import func
 
 
