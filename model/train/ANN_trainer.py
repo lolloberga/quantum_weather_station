@@ -38,7 +38,7 @@ class ANN_trainer(Trainer):
         train_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
         test_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
 
-        for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc='Train the model'):
+        for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc=f'Training the {self.get_name()} model'):
             self.model.train()
             current_loss = 0.0
 
