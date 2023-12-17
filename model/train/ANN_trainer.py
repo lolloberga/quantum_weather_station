@@ -11,7 +11,6 @@ from model.train.base.hyperparameters import Hyperparameters
 from model.train.base.trainer import Trainer
 from model.train.hyperparams.ann_hyperparams import ANN_Hyperparameters
 from utils.tensorboard_utils import TensorboardUtils
-# from ray import tune
 
 
 class ANN_trainer(Trainer):
@@ -34,8 +33,7 @@ class ANN_trainer(Trainer):
             self._criterion = nn.MSELoss()
         return self._criterion
 
-    def train_loader(self, train_loader: DataLoader, test_loader: DataLoader, use_ray_tune: bool = False) \
-            -> Tuple[np.array, np.array]:
+    def train_loader(self, train_loader: DataLoader, test_loader: DataLoader) -> Tuple[np.array, np.array]:
 
         train_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
         test_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
@@ -82,20 +80,13 @@ class ANN_trainer(Trainer):
 
             test_losses[epoch] = val_loss / len(test_loader)
             self.writer.add_scalar(self.get_name() + " - Loss/test", val_loss / len(test_loader), epoch)
-            # Communication with Ray Tune:
-            ''' if use_ray_tune:
-                with tune.checkpoint_dir(epoch) as checkpoint_dir:
-                    path = os.path.join(checkpoint_dir, "checkpoint")
-                    torch.save((self.model.state_dict(), optimizer.state_dict()), path)
-                tune.report(loss=(val_loss / val_steps)) # here you can insert accuracy too '''
 
             # Draw plot predicted vs actual (tensorboard)
-            if not use_ray_tune:
-                if (epoch + 1) % 10 == 0:
-                    y_pred = torch.from_numpy(self.predict(test_loader.dataset.X)).reshape(-1, 1)
-                    self.writer.add_figure(self.get_name() + ' - Predicted vs Actual',
-                                           TensorboardUtils.draw_prediction_tensorboard(y_pred, test_loader.dataset.y, epoch),
-                                           global_step=epoch+1)
+            if (epoch + 1) % 10 == 0:
+                y_pred = torch.from_numpy(self.predict(test_loader.dataset.X)).reshape(-1, 1)
+                self.writer.add_figure(self.get_name() + ' - Predicted vs Actual',
+                                       TensorboardUtils.draw_prediction_tensorboard(y_pred, test_loader.dataset.y, epoch),
+                                       global_step=epoch+1)
 
         # Save the model at the end of the training (for future inference)
         self._save_model()

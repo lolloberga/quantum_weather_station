@@ -93,8 +93,7 @@ class Trainer(ABC):
         pass
 
     @abstractmethod
-    def train_loader(self, train_loader: DataLoader, test_loader: DataLoader, use_ray_tune: bool = False) \
-            -> Tuple[np.array, np.array]:
+    def train_loader(self, train_loader: DataLoader, test_loader: DataLoader) -> Tuple[np.array, np.array]:
         pass
 
     @abstractmethod
