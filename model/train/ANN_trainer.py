@@ -92,6 +92,8 @@ class ANN_trainer(Trainer):
         self._save_model()
         self.writer.flush()
         self.writer.close()
+        # Send notification if needed
+        self._send_notification('END_OF_TRAINING')
         return train_losses, test_losses
 
     def train(self, X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None,

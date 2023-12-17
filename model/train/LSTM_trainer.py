@@ -87,6 +87,8 @@ class LSTM_trainer(Trainer):
         self._save_model()
         self.writer.flush()
         self.writer.close()
+        # Send notification if needed
+        self._send_notification('END_OF_TRAINING')
         return train_losses, test_losses
 
     def train_loader(self, train_loader: DataLoader, test_loader: DataLoader, use_ray_tune: bool = False) \
