@@ -11,6 +11,7 @@ ROOT_DIR = os.path.dirname(
 class ConfigParser:
 
     def __init__(self, config_path=None):
+        self._consts = dict()
         if config_path is None:
             config_path = os.path.join(ROOT_DIR, 'resources', 'configurations.yml')
         with open(config_path, 'r') as yamlfile:
@@ -20,13 +21,19 @@ class ConfigParser:
     def __getitem__(self, name) -> Any:
         return self._config[name]
 
+    def __contains__(self, item) -> bool:
+        return item in self._config
+
     @property
     def consts(self) -> Dict:
         return self._consts
 
-    def _define_constants(self) -> None:
-        self._consts = dict()
+    @property
+    def is_model_notification_configured(self) -> bool:
+        return ((self.consts['MODEL_EMAIL_PROVIDER'] is not None or self.consts['MODEL_SMS_PROVIDER'])
+                and self.consts['MODEL_NOTIFICATIONS'] is not None)
 
+    def _define_constants(self) -> None:
         self._consts['MAIN_PATH'] = ROOT_DIR
         self._consts['RESOURCE_PATH'] = os.path.join(ROOT_DIR, self._config['resouces']['path']) if \
             self._config['resouces']['path'] is not None else os.path.join(ROOT_DIR, "resources")
@@ -54,3 +61,13 @@ class ConfigParser:
             self._config['model']['draws_path'] is not None else os.path.join(ROOT_DIR, "../model", "draws")
         self._consts['MODEL_CHECKPOINT_PATH'] = os.path.join(ROOT_DIR, self._config['model']['checkpoint_path']) if \
             self._config['model']['checkpoint_path'] is not None else os.path.join(ROOT_DIR, "../model", "checkpoints")
+        self._consts['MODEL_NOTIFICATIONS'] = self._config['model']['notifications'] \
+            if 'notifications' in self._config['model'] and self._config['model']['notifications'] is not None else None
+        self._consts['MODEL_EMAIL_PROVIDER'] = self._config['model']['email_provider'] \
+            if 'email_provider' in self._config['model'] and self._config['model']['email_provider'] is not None else None
+        self._consts['MODEL_EMAIL_RECEIVERS'] = self._config['model']['email_receivers'] \
+            if 'email_receivers' in self._config['model'] and self._config['model']['email_receivers'] is not None else None
+        self._consts['MODEL_SMS_PROVIDER'] = self._config['model']['sms_provider'] \
+            if 'sms_provider' in self._config['model'] and self._config['model']['sms_provider'] is not None else None
+        self._consts['MODEL_SMS_RECEIVERS'] = self._config['model']['sms_receivers'] \
+            if 'sms_receivers' in self._config['model'] and self._config['model']['sms_receivers'] is not None else None

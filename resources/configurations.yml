@@ -19,3 +19,16 @@ dataset:
 model:
   draws_path: model/draws
   checkpoint_path: model/checkpoints
+  email_provider: gmail
+  email_receivers:
+    - lorenzobergadano@gmail.com
+  notifications:
+    - END_OF_TRAINING
+
+email:
+  gmail:
+    username: 'YOUR_GMAIL_EMAIL'
+    password: 'YOUR_GOOGLE_APP_PASSWORD'
+    address: smtp.gmail.com
+    port: 465
+    use_ssl: true
