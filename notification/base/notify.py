@@ -8,8 +8,8 @@ class Notify:
 
     def __init__(self, cfg: ConfigParser):
         super().__init__()
-        self._email_config = cfg['email'] if 'email' in cfg else None
-        self._sms_config = cfg['sms'] if 'sms' in cfg else None
+        self._email_config = cfg['notification']['email'] if 'notification' in cfg and 'email' in cfg['notification'] else None
+        self._sms_config = cfg['notification']['sms'] if 'notification' in cfg and 'sms' in cfg['notification'] else None
 
     @property
     def email_config(self) -> Dict:
@@ -28,7 +28,9 @@ class Notify:
         if placeholders is None:
             return original_text
         for key, value in placeholders.items():
-            if isinstance(key, str) and isinstance(value, str):
+            if isinstance(key, str):
+                if not isinstance(value, str):
+                    value = str(value)
                 original_text = original_text.replace(key, value)
         return original_text
 

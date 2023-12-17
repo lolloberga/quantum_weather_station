@@ -13,8 +13,8 @@ from torch.utils.tensorboard import SummaryWriter
 from config.config_parser import ConfigParser
 from model.train.base.hyperparameters import Hyperparameters
 from model.train.hyperparams.default_hyperparams import DefaultHyperparameters
-from notification.base.messages import MESSAGE
-from notification.gmail_provider import GmailProvider
+from notification.base.messages import MESSAGES
+from notification.email_provider import EmailProvider
 
 
 class Trainer(ABC):
@@ -119,19 +119,28 @@ class Trainer(ABC):
         fig.tight_layout()
         return fig
 
-    def _send_notification(self, notification_type: str) -> bool:
+    def _send_notification(self, notification_type: str, placeholders: dict = None) -> bool:
         if not self._cfg.is_model_notification_configured:
             return False
-        if notification_type not in MESSAGE:
+        if notification_type not in MESSAGES:
             print(f'{notification_type} is not a configured notification type')
             return False
         if notification_type not in self._cfg.consts['MODEL_NOTIFICATIONS']:
             # print(f'{notification_type} is not a configured message for the model')
             return False
 
-        notification_message = MESSAGE[notification_type]
-        email_provider = self._cfg.consts['MODEL_EMAIL_PROVIDER']
-        if email_provider is not None:
-            if email_provider == 'gmail':
-                gmail = GmailProvider(self._cfg, {'#NAME#': self.get_name()})
-                return gmail.send(notification_message, self._cfg.consts['MODEL_EMAIL_RECEIVERS'])
+        # Build the placeholders dictionary
+        if placeholders is None:
+            placeholders = {'#NAME#': self.get_name()}
+        else:
+            placeholders['#NAME#'] = self.get_name()
+
+        # Choose the notification type
+        notification_message = MESSAGES[notification_type]
+        is_email_notification = self._cfg.consts['MODEL_EMAIL_NOTIFY_ENABLE']
+        is_sms_notification = self._cfg.consts['MODEL_SMS_NOTIFY_ENABLE']
+        if is_email_notification is not None and is_email_notification:
+            email = EmailProvider(self._cfg, placeholders)
+            return email.send(notification_message, self._cfg.consts['MODEL_EMAIL_RECEIVERS'])
+        if is_sms_notification is not None and is_sms_notification:
+            raise Exception('At the moment there is no SMS provider configuration')

@@ -1,11 +1,10 @@
-MESSAGE = {
+MESSAGES = {
     'END_OF_TRAINING':
-        """From: PolitoBot <noreply@polito.it>
-        To: <#RECEIVER#>
-        Subject: QWS - END OF TRAINING - #NAME#
+        """Subject: QWS - END OF TRAINING - #NAME#
+To: <#RECEIVER#>
+From: PolitoBot <noreply@polito.it>
         
-        This is a test message.
-        """
+The training of #NAME# model is finished just now in #TIME# seconds."""
 }
 
-TYPE_OF_MESSAGES = list(MESSAGE.keys())
+TYPE_OF_MESSAGES = list(MESSAGES.keys())
