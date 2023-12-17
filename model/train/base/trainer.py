@@ -13,6 +13,8 @@ from torch.utils.tensorboard import SummaryWriter
 from config.config_parser import ConfigParser
 from model.train.base.hyperparameters import Hyperparameters
 from model.train.hyperparams.default_hyperparams import DefaultHyperparameters
+from notification.base.messages import MESSAGE
+from notification.gmail_provider import GmailProvider
 
 
 class Trainer(ABC):
@@ -116,3 +118,20 @@ class Trainer(ABC):
         ax.legend()
         fig.tight_layout()
         return fig
+
+    def _send_notification(self, notification_type: str) -> bool:
+        if not self._cfg.is_model_notification_configured:
+            return False
+        if notification_type not in MESSAGE:
+            print(f'{notification_type} is not a configured notification type')
+            return False
+        if notification_type not in self._cfg.consts['MODEL_NOTIFICATIONS']:
+            # print(f'{notification_type} is not a configured message for the model')
+            return False
+
+        notification_message = MESSAGE[notification_type]
+        email_provider = self._cfg.consts['MODEL_EMAIL_PROVIDER']
+        if email_provider is not None:
+            if email_provider == 'gmail':
+                gmail = GmailProvider(self._cfg, {'#NAME#': self.get_name()})
+                return gmail.send(notification_message, self._cfg.consts['MODEL_EMAIL_RECEIVERS'])
