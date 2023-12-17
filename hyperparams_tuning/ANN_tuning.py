@@ -123,7 +123,7 @@ def runs(hyperparams: ANN_Hyperparameters,
     train_losses, test_losses = trainer.train_loader(train_loader, test_loader)
     # Save hparams result on Tensorboard
     trainer.writer.add_hparams(hyperparams.hyperparameters,
-                               {'loss/train': train_losses[-1], 'loss/test': test_losses[-1]})
+                               {'loss/train': train_losses.min(), 'loss/test': test_losses.min()})
     # Plot the train loss and test loss per iteration
     fig = trainer.draw_train_test_loss(train_losses, test_losses)
     trainer.save_image(f'{name} - Train and test loss', fig)
