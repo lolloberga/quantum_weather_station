@@ -22,7 +22,7 @@ from utils.tuning_utils import TuningUtils
 START_DATE_BOARD = '2022-11-03'
 END_DATE_BOARD = '2023-06-15'
 RANDOM_STATE = 42
-NAME = f'LSTM_#1_{datetime.today().strftime("%Y%m%d_%H%M%S")}'
+NAME = f'LSTM_#1_30days_{datetime.today().strftime("%Y%m%d_%H%M%S")}'
 
 
 def build_dataset(cfg: ConfigParser, hyperparams: dict) -> tuple:
@@ -81,7 +81,7 @@ def main() -> None:
     cfg = ConfigParser()
     hyperparams = LSTM_Hyperparameters(
         {
-            'TRAIN_SIZE': 0.5,
+            'TRAIN_SIZE': 0.15,
             'LEARNING_RATE': 0.01,
             'OPTIMIZER': 'adam',
             'CRITERION': 'l1',
@@ -124,5 +124,5 @@ def main() -> None:
     ax.set_title(f'{NAME} Performance - {hyperparams["NUM_EPOCHS"]} epochs - T = {hyperparams["T"]}')
     ax.legend(loc='lower right')
     fig.tight_layout()
-    trainer.save_image('LSTM_+1hour_arpa - Performance', fig)
+    trainer.save_image('LSTM_+1hour_arpa_30days - Performance', fig)
     print(f'End {NAME}')
