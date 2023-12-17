@@ -9,3 +9,4 @@ resources/dataset/*
 /runs/
 /model/checkpoints/
 /model/draws/
+resources/credentials/*

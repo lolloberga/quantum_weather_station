@@ -1,3 +1,4 @@
+import os
 import smtplib
 import ssl
 from typing import List, Dict
@@ -17,9 +18,19 @@ class EmailProvider(Notify):
         self._address = self._config['address']
         self._port = int(self._config['port'])
         self._use_ssl = self._config['use_ssl'] if 'use_ssl' in self._config else True
+        self._placeholders = placeholders
+
+        # Get credentials
         self._username = self._config['username'] if 'username' in self._config else None
         self._password = self._config['password'] if 'password' in self._config else None
-        self._placeholders = placeholders
+        if ('get_credentials_from_file' in self._config and self._config['get_credentials_from_file']
+                and self._username is not None and self._password is not None):
+            username_file = os.path.join(cfg.consts['MAIN_PATH'], self._username)
+            password_file = os.path.join(cfg.consts['MAIN_PATH'], self._password)
+            with open(username_file, 'r') as f:
+                self._username = f.readline().strip('\n')
+            with open(password_file, 'r') as f:
+                self._password = f.readline().strip('\n')
 
     def send(self, message: str, receivers: List[str]) -> bool:
         if len(receivers) <= 0:

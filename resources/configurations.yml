@@ -27,8 +27,9 @@ model:
 
 notification:
   email:
-    username: 'lorenzobergadano@gmail.com'
-    password: 'souy htkd fego mzmj'
+    get_credentials_from_file: true
+    username: resources/credentials/email/username.txt
+    password: resources/credentials/email/password.txt
     address: smtp.gmail.com
     port: 465
     use_ssl: true
