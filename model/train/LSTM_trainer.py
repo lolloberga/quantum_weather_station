@@ -1,3 +1,4 @@
+import time
 from typing import Tuple
 
 import numpy as np
@@ -47,6 +48,7 @@ class LSTM_trainer(Trainer):
 
         train_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
         test_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
+        start = time.time()
 
         X_train, y_train = X_train.to(self.device), y_train.to(self.device)
         X_test, y_test = X_test.to(self.device), y_test.to(self.device)
@@ -87,6 +89,8 @@ class LSTM_trainer(Trainer):
         self._save_model()
         self.writer.flush()
         self.writer.close()
+        # Send notification if needed
+        self._send_notification('END_OF_TRAINING', {'#TIME#': round(time.time()-start, 2)})
         return train_losses, test_losses
 
     def train_loader(self, train_loader: DataLoader, test_loader: DataLoader, use_ray_tune: bool = False) \

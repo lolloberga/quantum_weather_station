@@ -1,3 +1,4 @@
+import time
 from typing import Tuple
 
 import numpy as np
@@ -37,6 +38,7 @@ class ANN_trainer(Trainer):
 
         train_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
         test_losses = np.zeros(self.hyperparameters['NUM_EPOCHS'])
+        start = time.time()
 
         for epoch in tqdm(range(self.hyperparameters['NUM_EPOCHS']), desc=f'Training the {self.get_name()} model'):
             self.model.train()
@@ -92,6 +94,8 @@ class ANN_trainer(Trainer):
         self._save_model()
         self.writer.flush()
         self.writer.close()
+        # Send notification if needed
+        self._send_notification('END_OF_TRAINING', {'#TIME#': round(time.time()-start, 2)})
         return train_losses, test_losses
 
     def train(self, X_train: torch.Tensor, y_train: torch.Tensor, X_test: torch.Tensor = None,

@@ -19,3 +19,17 @@ dataset:
 model:
   draws_path: model/draws
   checkpoint_path: model/checkpoints
+  email_notification: true
+  email_receivers:
+    - lorenzobergadano@gmail.com
+  notifications:
+    - END_OF_TRAINING
+
+notification:
+  email:
+    get_credentials_from_file: true
+    username: resources/credentials/email/username.txt
+    password: resources/credentials/email/password.txt
+    address: smtp.gmail.com
+    port: 465
+    use_ssl: true
