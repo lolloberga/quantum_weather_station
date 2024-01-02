@@ -29,7 +29,8 @@ def build_dataset_2(cfg: ConfigParser, batch_loader_size: int = 2, train_size: f
     df_sensors = pd.read_csv(
         os.path.join(cfg.consts['DATASET_PATH'], 'unique_timeseries_by_median_minutes.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
-    df_sensors.timestamp += pd.Timedelta(minutes=1)
+    # df_sensors.timestamp += pd.Timedelta(minutes=1)
+    df_sensors.timestamp += pd.Timedelta(minutes=60)
     df_arpa = DatasetUtils.build_arpa_dataset(os.path.join(cfg.consts['DATASET_PATH'], 'arpa',
                                                            'Dati PM10_PM2.5_2020-2022.csv')
                                               , os.path.join(cfg.consts['DATASET_PATH'], 'arpa',
