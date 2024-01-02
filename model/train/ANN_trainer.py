@@ -84,7 +84,7 @@ class ANN_trainer(Trainer):
             self.writer.add_scalar(self.get_name() + " - Loss/test", val_loss / len(test_loader), epoch)
 
             # Draw plot predicted vs actual (tensorboard)
-            if (epoch + 1) % 10 == 0:
+            if (epoch + 1) % 30 == 0:
                 y_pred = torch.from_numpy(self.predict(test_loader.dataset.X)).reshape(-1, 1)
                 self.writer.add_figure(self.get_name() + ' - Predicted vs Actual',
                                        TensorboardUtils.draw_prediction_tensorboard(y_pred, test_loader.dataset.y, epoch),
