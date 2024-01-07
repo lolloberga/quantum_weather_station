@@ -39,11 +39,6 @@ def build_dataset(cfg: ConfigParser, hyperparams: dict) -> tuple:
     df.rename(columns={"data": "x", "pm25": "y"}, inplace=True)
     # Slide ARPA data 1 hour plus
     df['y'] = DatasetUtils.slide_plus_1hours(df['y'], df['x'][0])
-    # Add month column and transform it into one-hot-encording
-    # df['month'] = df.timestamp.dt.month
-    # df['period_day'] = df['timestamp'].map(get_period_of_the_day)
-    # Transform some features into one-hot encoding
-    # df = pd.get_dummies(df, columns=['month', 'period_day'])
 
     input_data = df.drop(['timestamp'], axis=1)
     targets = df.y.values
@@ -99,6 +94,9 @@ def main() -> None:
     # Instantiate the trainer
     trainer = LSTM_trainer(model, name=NAME, hyperparameters=hyperparams, optimizer=optimizer, criterion=criterion)
     train_losses, test_losses = trainer.train(X_train, y_train, X_test, y_test)
+    # Save the hyperparams configuration
+    trainer.writer.add_hparams(hyperparams.hyperparameters,
+                               {'loss/train': train_losses.min(), 'loss/test': test_losses.min()})
     # Plot the train loss and test loss per iteration
     fig = trainer.draw_train_test_loss(train_losses, test_losses)
     trainer.save_image(f'{NAME} - Train and test loss', fig)
