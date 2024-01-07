@@ -6,8 +6,11 @@ from model.LSTM import main as lstm_model
 from hyperparams_tuning.ANN_tuning import main as ann_tuning
 from hyperparams_tuning.LSTM_tuning import main as lstm_tuning
 from test.LSTM_improvement1 import main as lstm_1
+from test.ANN_improvement1 import main as ann_1
+from test.ANN_improvement2 import main as ann_2
 
-ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1']
+ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1'
+    , 'ANN_#1', 'ANN_#2']
 
 
 def set_mandatory_args(parser: argparse.ArgumentParser):
@@ -39,4 +42,8 @@ if __name__ == "__main__":
         lstm_tuning()
     elif args.action == 'LSTM_#1':
         lstm_1()
+    elif args.action == 'ANN_#1':
+        ann_1()
+    elif args.action == 'ANN_#2':
+        ann_2()
 

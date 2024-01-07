@@ -4,7 +4,6 @@ from model.train.base.hyperparameters import Hyperparameters
 ANN_defaults_hyperparams = {
     'TRAIN_SIZE': 0.7,
     'RANDOM_STATE': 42,
-    'INPUT_SIZE': 60,
     'HIDDEN_SIZE': 128,
     'HIDDEN_SIZE_2': 90,
     'HIDDEN_SIZE_3': 30,

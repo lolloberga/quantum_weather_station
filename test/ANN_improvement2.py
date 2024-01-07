@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 
-import numpy as np
 import pandas as pd
 import torch
 from matplotlib import pyplot as plt
@@ -17,58 +16,36 @@ from utils.tuning_utils import TuningUtils
 
 """
     THIS PYTHON SCRIPT IS RELATED TO TEST A PARTICULAR COMBINATION OF DATASET AND HYPERPARAMS.
-    YOU CAN SEE THE FULL DESCRIPTION OF THE TEST HERE: https://trello.com/c/nUTo7oBe/19-ann-improvement-1
+    YOU CAN SEE THE FULL DESCRIPTION OF THE TEST HERE: https://trello.com/c/1qmfCu58/20-ann-improvement-2
 """
 
 # Define constants
 START_DATE_BOARD = '2022-11-03'
 END_DATE_BOARD = '2023-06-15'
 RANDOM_STATE = 42
-NAME = f'ANN_all_feats_{datetime.today().strftime("%Y%m%d_%H%M%S")}'
+NAME = f'ANN_hourly_all_feats_{datetime.today().strftime("%Y%m%d_%H%M%S")}'
 NUM_FEATURES = 4  # pm25, temperature, humidity, pressure
 
 
 def build_dataset_2(cfg: ConfigParser, batch_loader_size: int = 2, train_size: float = 0.7) -> tuple:
     df_sensors = pd.read_csv(
-        os.path.join(cfg.consts['DATASET_PATH'], 'unique_timeseries_by_median_minutes_all_attributes.csv'))
+        os.path.join(cfg.consts['DATASET_PATH'], 'unique_timeseries_by_median_hours_all_attributes.csv'))
     df_sensors.timestamp = pd.to_datetime(df_sensors.timestamp)
-    df_sensors.timestamp += pd.Timedelta(minutes=60)
+    df_sensors.timestamp += pd.Timedelta(hours=1)
     df_arpa = DatasetUtils.build_arpa_dataset(os.path.join(cfg.consts['DATASET_PATH'], 'arpa',
                                                            'Dati PM10_PM2.5_2020-2022.csv')
                                               , os.path.join(cfg.consts['DATASET_PATH'], 'arpa',
                                                              'Torino-Rubino_Polveri-sottili_2023-01-01_2023-06-30.csv'),
                                               START_DATE_BOARD, END_DATE_BOARD)
-    # Apply date range filter (inner join)
-    mask = (df_arpa['timestamp'] >= min(df_sensors.timestamp) + pd.DateOffset(hours=1)) & (
-            df_arpa['timestamp'] <= max(df_sensors.timestamp))
-    df_arpa = df_arpa.loc[mask]
-    mask = (df_sensors['timestamp'] >= min(df_arpa.timestamp) - pd.DateOffset(hours=1)) & (
-            df_sensors['timestamp'] <= max(df_arpa.timestamp))
-    df_sensors = df_sensors.loc[mask]
+
+    df = df_sensors.merge(df_arpa, left_on=['timestamp'], right_on=['timestamp'])
+    df.rename(columns={"pm25_x": "x", "pm25_y": "y"}, inplace=True)
     # Slide ARPA data 1 hour plus
-    df_arpa.reset_index(inplace=True)
-    df_arpa['pm25'] = DatasetUtils.slide_plus_1hours(df_arpa['pm25'], df_arpa['pm25'][0])
-    # Unique dataset
-    columns_pm25 = ["pm{}".format(i) for i in range(1, 61)]
-    columns_temp = ["tm{}".format(i) for i in range(1, 61)]
-    columns_pres = ["pr{}".format(i) for i in range(1, 61)]
-    columns_rh = ["rh{}".format(i) for i in range(1, 61)]
-    columns = columns_pm25 + columns_temp + columns_pres + columns_rh
-    columns.insert(0, 'arpa')
-    df = pd.DataFrame(columns=columns)
+    df['y'] = DatasetUtils.slide_plus_1hours(df['y'], df['x'][0])
 
-    df_sensors.reset_index(inplace=True, drop=True)
-    for i, arpa in enumerate(df_arpa['pm25']):
-        row_pm25 = df_sensors['pm25'][i * 60: (i + 1) * 60].values
-        row_temp = df_sensors['temp'][i * 60: (i + 1) * 60].values
-        row_pres = df_sensors['pres'][i * 60: (i + 1) * 60].values
-        row_rh = df_sensors['rh'][i * 60: (i + 1) * 60].values
-        row = np.concatenate([row_pm25, row_temp, row_pres, row_rh])
-        row = np.append(arpa, row)
-        df.loc[len(df)] = row.tolist()
-
-    X = df.loc[:, df.columns != "arpa"]
-    y = df['arpa']
+    df.drop(['timestamp'], axis=1, inplace=True)
+    X = df.loc[:, df.columns != "y"]
+    y = df['y']
     X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, train_size=train_size,
                                                         shuffle=False,
                                                         random_state=RANDOM_STATE)
@@ -99,9 +76,9 @@ def main() -> None:
             'LEARNING_RATE': 0.0001,
             'OPTIMIZER': 'sgd',
             'CRITERION': 'l1',
-            'HIDDEN_SIZE': 50,
-            'HIDDEN_SIZE_2': 10,
-            'HIDDEN_SIZE_3': None,
+            'HIDDEN_SIZE': 30,
+            'HIDDEN_SIZE_2': 15,
+            'HIDDEN_SIZE_3': 5,
             'NUM_EPOCHS': 200,
             'MOMENTUM': 0.9,
             'WEIGHT_DECAY': 0,
@@ -112,7 +89,7 @@ def main() -> None:
     train_loader, test_loader, df_arpa = build_dataset_2(cfg, batch_loader_size=hyperparams['BATCH_SIZE'],
                                                          train_size=hyperparams['TRAIN_SIZE'])
     # Instantiate the model
-    model = MyNeuralNetwork(60 * NUM_FEATURES, 1, hyperparams['HIDDEN_SIZE'], hyperparams['HIDDEN_SIZE_2'],
+    model = MyNeuralNetwork(NUM_FEATURES, 1, hyperparams['HIDDEN_SIZE'], hyperparams['HIDDEN_SIZE_2'],
                             hyperparams['HIDDEN_SIZE_3'])
     # Get the correct optimizer and criterion
     optimizer = TuningUtils.choose_optimizer(hyperparams.hyperparameters, model)

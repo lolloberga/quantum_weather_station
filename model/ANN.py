@@ -4,13 +4,9 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from datetime import datetime
-import torch.nn.functional as F
-import torch.optim as optim
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
-from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from config.config_parser import ConfigParser
@@ -58,15 +54,30 @@ class MyNeuralNetwork(nn.Module):
     def __init__(self, input_size: int, output_size: int, hidden_size: int, hidden_size_2: int = 90,
                  hidden_size_3: int = 30):
         super().__init__()
+        # Default net
         self.net = nn.Sequential(
             nn.Linear(input_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, hidden_size_2),
-            nn.ReLU(),
-            nn.Linear(hidden_size_2, hidden_size_3),
-            nn.ReLU(),
-            nn.Linear(hidden_size_3, output_size),
+            nn.Linear(hidden_size, output_size),
         )
+        if hidden_size_2 is not None and hidden_size_3 is not None:
+            self.net = nn.Sequential(
+                nn.Linear(input_size, hidden_size),
+                nn.ReLU(),
+                nn.Linear(hidden_size, hidden_size_2),
+                nn.ReLU(),
+                nn.Linear(hidden_size_2, hidden_size_3),
+                nn.ReLU(),
+                nn.Linear(hidden_size_3, output_size),
+            )
+        elif hidden_size_2 is not None:
+            self.net = nn.Sequential(
+                nn.Linear(input_size, hidden_size),
+                nn.ReLU(),
+                nn.Linear(hidden_size, hidden_size_2),
+                nn.ReLU(),
+                nn.Linear(hidden_size_2, output_size),
+            )
 
     def forward(self, x):
         out = self.net(x)
