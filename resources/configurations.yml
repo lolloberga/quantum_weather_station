@@ -19,7 +19,7 @@ dataset:
 model:
   draws_path: model/draws
   checkpoint_path: model/checkpoints
-  email_notification: true
+  email_notification: false
   email_receivers:
     - lorenzobergadano@gmail.com
   notifications:
