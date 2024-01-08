@@ -3,14 +3,18 @@ from database.load_measure import main as load_measure_table
 from database.populate_db import main as populate_db
 from model.ANN import main as ann_model
 from model.LSTM import main as lstm_model
+from model.VQRNonLinear import main as vqr_nonlinear_model
+from model.VQRLinear import main as vqr_linear_model
 from hyperparams_tuning.ANN_tuning import main as ann_tuning
 from hyperparams_tuning.LSTM_tuning import main as lstm_tuning
+from hyperparams_tuning.VQRNonLinear_tuning import main as vqr_nonlinear_tuning
+from hyperparams_tuning.VQRLinear_tuning import main as vqr_linear_tuning
 from test.LSTM_improvement1 import main as lstm_1
 from test.ANN_improvement1 import main as ann_1
 from test.ANN_improvement2 import main as ann_2
 
 ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1'
-    , 'ANN_#1', 'ANN_#2']
+    , 'ANN_#1', 'ANN_#2', 'VQR_NONLINEAR_MODEL', 'VQR_LINEAR_MODEL', 'VQR_NONLINEAR_TUNING', 'VQR_LINEAR_TUNING']
 
 
 def set_mandatory_args(parser: argparse.ArgumentParser):
@@ -46,4 +50,11 @@ if __name__ == "__main__":
         ann_1()
     elif args.action == 'ANN_#2':
         ann_2()
-
+    elif args.action == 'VQR_NONLINEAR_MODEL':
+        vqr_nonlinear_model()
+    elif args.action == 'VQR_LINEAR_MODEL':
+        vqr_linear_model()
+    elif args.action == 'VQR_NONLINEAR_TUNING':
+        vqr_nonlinear_tuning()
+    elif args.action == 'VQR_LINEAR_TUNING':
+        vqr_linear_tuning()

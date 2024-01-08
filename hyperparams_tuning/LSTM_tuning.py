@@ -91,7 +91,7 @@ def runs(hyperparams: LSTM_Hyperparameters,
     trainer.save_image(f'{name} - Train and test loss', fig)
 
 
-def main():
+def main() -> None:
     print('Start LSTM hyperparameters tuning')
     # Get configuration space
     epochs = [200, 300, 450]

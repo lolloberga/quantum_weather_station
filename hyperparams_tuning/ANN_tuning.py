@@ -130,7 +130,7 @@ def runs(hyperparams: ANN_Hyperparameters,
     trainer.save_image(f'{name} - Train and test loss', fig)
 
 
-def main():
+def main() -> None:
     print('Start ANN hyperparameters tuning')
     # Get configuration space
     epochs = [200, 400, 500]

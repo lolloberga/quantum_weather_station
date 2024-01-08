@@ -84,7 +84,7 @@ def runs(hyperparams: VQR_Hyperparameters,
     trainer.save_image(f'{name} - Train and test loss', fig)
 
 
-def main():
+def main() -> None:
     print('Start VQR non-linear hyperparameters tuning')
     # Get configuration space
     epochs = [200, 400, 500]
