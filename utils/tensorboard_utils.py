@@ -1,5 +1,7 @@
+import pandas as pd
 import torch
 from matplotlib import pyplot as plt
+from tbparse import SummaryReader
 
 
 class TensorboardUtils:
@@ -15,3 +17,18 @@ class TensorboardUtils:
         ax.legend(loc='upper right')
         fig.tight_layout()
         return fig
+
+    @staticmethod
+    def read_hyperparameters(writer_path: str) -> pd.DataFrame:
+        reader = SummaryReader(writer_path)
+        return reader.hparams
+
+
+def main() -> None:
+    log_dir = "/Users/lorenzoberhadano/University/Polito/Thesis/quantum_weather_station/runs/ANN_all_feats_20240104_191005 - 2024-01-04 19:10"
+    hp = TensorboardUtils.read_hyperparameters(log_dir)
+    print(hp)
+
+
+if __name__ == '__main__':
+    main()
