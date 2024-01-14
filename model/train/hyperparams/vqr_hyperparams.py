@@ -9,6 +9,8 @@ VQR_defaults_hyperparams = {
     'DUPLICATE_QUBITS': False,
     'OPTIMIZER': 'adam',
     'CRITERION': 'rmse',
+    'MOMENTUM': 0.9,
+    'WEIGHT_DECAY': 0
 }
 
 
