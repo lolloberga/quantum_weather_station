@@ -87,7 +87,7 @@ def runs(hyperparams: VQR_Hyperparameters,
 def main() -> None:
     print('Start VQR linear hyperparameters tuning')
     # Get configuration space
-    epochs = [200, 400, 500]
+    epochs = [200]
     batches = [4, 10, 15]
     lr = [0.0001, 0.001, 0.01]
     layers = [3, 4, 5]
