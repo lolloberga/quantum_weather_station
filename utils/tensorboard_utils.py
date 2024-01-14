@@ -24,11 +24,6 @@ class TensorboardUtils:
         return reader.hparams
 
 
-def main() -> None:
-    log_dir = "/Users/lorenzoberhadano/University/Polito/Thesis/quantum_weather_station/runs/ANN_all_feats_20240104_191005 - 2024-01-04 19:10"
+def main(log_dir: str) -> None:
     hp = TensorboardUtils.read_hyperparameters(log_dir)
     print(hp)
-
-
-if __name__ == '__main__':
-    main()

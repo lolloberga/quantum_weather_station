@@ -12,14 +12,18 @@ from hyperparams_tuning.VQRLinear_tuning import main as vqr_linear_tuning
 from test.LSTM_improvement1 import main as lstm_1
 from test.ANN_improvement1 import main as ann_1
 from test.ANN_improvement2 import main as ann_2
+from utils.tensorboard_utils import TensorboardUtils
 
-ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1'
-    , 'ANN_#1', 'ANN_#2', 'VQR_NONLINEAR_MODEL', 'VQR_LINEAR_MODEL', 'VQR_NONLINEAR_TUNING', 'VQR_LINEAR_TUNING']
+ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1',
+           'ANN_#1', 'ANN_#2', 'VQR_NONLINEAR_MODEL', 'VQR_LINEAR_MODEL', 'VQR_NONLINEAR_TUNING', 'VQR_LINEAR_TUNING',
+           'TB_READ_HP']
 
 
 def set_mandatory_args(parser: argparse.ArgumentParser):
     parser.add_argument("-a", "--action", type=str, help="The action that you can execute", required=True,
                         choices=ACTIONS)
+    parser.add_argument("-tb", "--tensorboard-folder", type=str, help="The TB folder used during the run",
+                        required=False)
 
 
 if __name__ == "__main__":
@@ -36,6 +40,9 @@ if __name__ == "__main__":
         load_measure_table()
     elif args.action == 'POPULATE_DB':
         populate_db()
+    elif args.action == 'TB_READ_HP' and args.tensorboard_folder is not None:
+        hp = TensorboardUtils.read_hyperparameters(args.tensorboard_folder)
+        print(hp)
     elif args.action == 'ANN_MODEL':
         ann_model()
     elif args.action == 'LSTM_MODEL':
@@ -58,3 +65,7 @@ if __name__ == "__main__":
         vqr_nonlinear_tuning()
     elif args.action == 'VQR_LINEAR_TUNING':
         vqr_linear_tuning()
+    else:
+        print('There was an error during execute your program.')
+        parser.print_help()
+        exit(-1)
