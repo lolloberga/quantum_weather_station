@@ -116,7 +116,3 @@ def main() -> None:
         trainer.save_image(f'{name} - Train and test loss', fig)
 
     print('End of LSTM cross-validation')
-
-
-if __name__ == "__main__":
-    main()
