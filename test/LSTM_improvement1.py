@@ -77,11 +77,12 @@ def main() -> None:
     hyperparams = LSTM_Hyperparameters(
         {
             'TRAIN_SIZE': 0.15,
-            'LEARNING_RATE': 0.01,
+            'LEARNING_RATE': 0.001,
             'OPTIMIZER': 'adam',
             'CRITERION': 'l1',
-            'HIDDEN_SIZE': 650,
-            'NUM_EPOCHS': 500
+            'HIDDEN_SIZE': 600,
+            'NUM_EPOCHS': 450,
+            'T': 3
         }
     )
     # Prepare dataset
