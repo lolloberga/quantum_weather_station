@@ -17,7 +17,7 @@ from cross_validation.LSTM_CV import main as lstm_cv
 
 ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1',
            'ANN_#1', 'ANN_#2', 'VQR_NONLINEAR_MODEL', 'VQR_LINEAR_MODEL', 'VQR_NONLINEAR_TUNING', 'VQR_LINEAR_TUNING',
-           'TB_READ_HP', 'LST_CV']
+           'TB_READ_HP', 'LSTM_CV']
 
 
 def set_mandatory_args(parser: argparse.ArgumentParser):
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         vqr_nonlinear_tuning()
     elif args.action == 'VQR_LINEAR_TUNING':
         vqr_linear_tuning()
-    elif args.action == 'LST_CV':
+    elif args.action == 'LSTM_CV':
         lstm_cv()
     else:
         print('There was an error during execute your program.')

@@ -37,7 +37,7 @@ def build_dataset(cfg: ConfigParser) -> tuple:
     input_data = df.drop(['timestamp'], axis=1)
     targets = df.y.values
 
-    return input_data, targets, df
+    return input_data, targets
 
 
 def prepare_train_split(input_data: np.ndarray, targets: np.ndarray, hyperparams: dict) -> tuple:
@@ -87,7 +87,7 @@ def main() -> None:
         }
     )
     # Prepare dataset
-    input_data, targets, df = build_dataset(cfg)
+    input_data, targets = build_dataset(cfg)
     # Prepare cross-validation
     kf = KFold(n_splits=NUM_SPLIT, shuffle=False)
     X = input_data.values
