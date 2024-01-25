@@ -12,6 +12,8 @@ from hyperparams_tuning.VQRLinear_tuning import main as vqr_linear_tuning
 from test.LSTM_improvement1 import main as lstm_1
 from test.ANN_improvement1 import main as ann_1
 from test.ANN_improvement2 import main as ann_2
+from test.VQRLinear_improvement1 import main as vqr_linear_test1
+from test.VQRNonLinear_improvement1 import main as vqr_nonlinear_test1
 from utils.tensorboard_utils import TensorboardUtils
 from cross_validation.LSTM_CV import main as lstm_cv
 
@@ -68,6 +70,10 @@ if __name__ == "__main__":
         vqr_linear_tuning()
     elif args.action == 'LSTM_CV':
         lstm_cv()
+    elif args.action == 'VQR_LINEAR_TEST#1':
+        vqr_linear_test1()
+    elif args.action == 'VQR_NONLINEAR_TEST#1':
+        vqr_nonlinear_test1()
     else:
         print('There was an error during execute your program.')
         parser.print_help()
