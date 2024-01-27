@@ -3,23 +3,28 @@ from database.load_measure import main as load_measure_table
 from database.populate_db import main as populate_db
 from model.ANN import main as ann_model
 from model.LSTM import main as lstm_model
+from model.QLSTM import main as qlstm_model
 from model.VQRNonLinear import main as vqr_nonlinear_model
 from model.VQRLinear import main as vqr_linear_model
 from hyperparams_tuning.ANN_tuning import main as ann_tuning
 from hyperparams_tuning.LSTM_tuning import main as lstm_tuning
 from hyperparams_tuning.VQRNonLinear_tuning import main as vqr_nonlinear_tuning
 from hyperparams_tuning.VQRLinear_tuning import main as vqr_linear_tuning
+from hyperparams_tuning.QLSTM_tuning import main as qlstm_tuning
 from test.LSTM_improvement1 import main as lstm_1
 from test.ANN_improvement1 import main as ann_1
 from test.ANN_improvement2 import main as ann_2
 from test.VQRLinear_improvement1 import main as vqr_linear_test1
 from test.VQRNonLinear_improvement1 import main as vqr_nonlinear_test1
+from cross_validation.VQR_Linear_CV import main as vqr_linear_cv
+from cross_validation.VQR_NonLinear_CV import main as vqr_nonlinear_cv
 from utils.tensorboard_utils import TensorboardUtils
 from cross_validation.LSTM_CV import main as lstm_cv
 
 ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1',
            'ANN_#1', 'ANN_#2', 'VQR_NONLINEAR_MODEL', 'VQR_LINEAR_MODEL', 'VQR_NONLINEAR_TUNING', 'VQR_LINEAR_TUNING',
-           'TB_READ_HP', 'LSTM_CV', 'VQR_LINEAR_TEST#1', 'VQR_NONLINEAR_TEST#1']
+           'TB_READ_HP', 'LSTM_CV', 'VQR_LINEAR_TEST#1', 'VQR_NONLINEAR_TEST#1', 'VQR_LINEAR_CV', 'VQR_NONLINEAR_CV',
+           'QLSTM_MODEL', 'QLSTM_TUNING']
 
 
 def set_mandatory_args(parser: argparse.ArgumentParser):
@@ -50,10 +55,14 @@ if __name__ == "__main__":
         ann_model()
     elif args.action == 'LSTM_MODEL':
         lstm_model()
+    elif args.action == 'QLSTM_MODEL':
+        qlstm_model()
     elif args.action == 'ANN_TUNING':
         ann_tuning()
     elif args.action == 'LSTM_TUNING':
         lstm_tuning()
+    elif args.action == 'QLSTM_TUNING':
+        qlstm_tuning()
     elif args.action == 'LSTM_#1':
         lstm_1()
     elif args.action == 'ANN_#1':
@@ -74,6 +83,10 @@ if __name__ == "__main__":
         vqr_linear_test1()
     elif args.action == 'VQR_NONLINEAR_TEST#1':
         vqr_nonlinear_test1()
+    elif args.action == 'VQR_LINEAR_CV':
+        vqr_linear_cv()
+    elif args.action == 'VQR_NONLINEAR_CV':
+        vqr_nonlinear_cv()
     else:
         print('There was an error during execute your program.')
         parser.print_help()
