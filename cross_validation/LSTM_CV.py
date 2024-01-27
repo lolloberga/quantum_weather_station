@@ -93,7 +93,6 @@ def main() -> None:
     X = input_data.values
     # Loop fo each fold
     for i, (train_index, test_index) in enumerate(kf.split(X, targets)):
-        print(f"Fold {i}:")
         name = f"LSTM_CV_FOLD{i + 1}"
         # Prepare the final dataset
         X_train, y_train = prepare_train_split(input_data.iloc[train_index], targets[train_index],

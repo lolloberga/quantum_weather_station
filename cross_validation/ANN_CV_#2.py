@@ -91,7 +91,6 @@ def main() -> None:
     kf = KFold(n_splits=NUM_SPLIT, shuffle=True, random_state=RANDOM_STATE)
     # Loop fo each fold
     for i, (train_index, test_index) in enumerate(kf.split(X, y)):
-        print(f"Fold {i}:")
         name = f"ANN#2_CV_FOLD{i + 1}"
         # Prepare the final dataset
         train_loader = prepare_train_split(X[train_index], y[train_index], hyperparams['BATCH_SIZE'])

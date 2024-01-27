@@ -21,6 +21,7 @@ class TensorboardUtils:
     @staticmethod
     def read_hyperparameters(writer_path: str) -> pd.DataFrame:
         reader = SummaryReader(writer_path)
+        # reader.scalars.query("tag == 'LSTM_CV_FOLD1 - Loss/test'")['value'].min()
         return reader.hparams
 
 
