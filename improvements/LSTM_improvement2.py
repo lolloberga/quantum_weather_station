@@ -98,9 +98,9 @@ def main() -> None:
     # Save the hyperparams configuration
     trainer.writer.add_hparams(hyperparams.hyperparameters,
                                {'loss/train': train_losses.min(), 'loss/test': test_losses.min()})
-    # Plot the train loss and improvements loss per iteration
+    # Plot the train loss and test loss per iteration
     fig = trainer.draw_train_test_loss(train_losses, test_losses)
-    trainer.save_image(f'{NAME} - Train and improvements loss', fig)
+    trainer.save_image(f'{NAME} - Train and test loss', fig)
     # Plot the model performance
     test_target = y_test.cpu().detach().numpy()
     test_predictions = []
