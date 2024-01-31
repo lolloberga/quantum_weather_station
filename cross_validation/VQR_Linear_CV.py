@@ -78,10 +78,11 @@ def main() -> None:
     # Set the best hyperparams combination
     hyperparams = VQR_Hyperparameters(
         {
-            'LEARNING_RATE': 0.0001,
-            'OPTIMIZER': 'sgd',
+            'TRAIN_SIZE': 0.75,
+            'LEARNING_RATE': 0.001,
+            'OPTIMIZER': 'adam',
             'CRITERION': 'mse',
-            'LAYERS': 4,
+            'LAYERS': 3,
             'NUM_EPOCHS': 200,
             'NUM_LAYERS': 4,
             'BATCH_SIZE': 4
