@@ -82,7 +82,6 @@ def main() -> None:
             'LEARNING_RATE': 0.001,
             'OPTIMIZER': 'adam',
             'CRITERION': 'mse',
-            'LAYERS': 3,
             'NUM_EPOCHS': 200,
             'NUM_LAYERS': 4,
             'BATCH_SIZE': 4
@@ -106,7 +105,8 @@ def main() -> None:
         criterion = TuningUtils.choose_criterion(hyperparams.hyperparameters)
         # Instantiate the trainer
         trainer = VQR_trainer(model, name=name, hyperparameters=hyperparams, optimizer=optimizer, criterion=criterion)
-        train_losses, test_losses = trainer.train_loader(train_loader, test_loader)# Save hparams result on Tensorboard
+        train_losses, test_losses = trainer.train_loader(train_loader, test_loader)
+        # Save hparams result on Tensorboard
         trainer.writer.add_hparams(hyperparams.hyperparameters,
                                    {'loss/train': train_losses.min(), 'loss/test': test_losses.min()})
         # Plot the train loss and test loss per iteration

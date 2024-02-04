@@ -93,12 +93,12 @@ def main() -> None:
     print('Start VQR non-linear hyperparameters test')
     # Get configuration space
     epochs = [200]
-    batches = [10]
-    lr = [0.01]
-    layers = [3, 4, 5]
-    optimizer = ['sgd']
-    criterion = ['rmse', 'mse', 'l1']
-    hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE', 'LAYERS', 'OPTIMIZER', 'CRITERION']
+    batches = [4]
+    lr = [0.001]
+    layers = [3, 5]
+    optimizer = ['adam']
+    criterion = ['mse']
+    hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE', 'NUM_LAYERS', 'OPTIMIZER', 'CRITERION']
     # Get all possible hyperparameters combination
     combinations = list(itertools.product(epochs, batches, lr, layers, optimizer, criterion))
     hparams = []
