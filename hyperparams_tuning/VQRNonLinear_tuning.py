@@ -93,7 +93,7 @@ def main() -> None:
     layers = [3, 4, 5]
     optimizer = ['adam', 'sgd']
     criterion = ['rmse', 'mse', 'l1']
-    hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE', 'LAYERS', 'OPTIMIZER', 'CRITERION']
+    hparam_names = ['NUM_EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE', 'NUM_LAYERS', 'OPTIMIZER', 'CRITERION']
     # Get all possible hyperaprameters combination
     combinations = list(itertools.product(epochs, batches, lr, layers, optimizer, criterion))
     hparams = []
