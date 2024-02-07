@@ -30,7 +30,8 @@ class QLSTM(nn.Module):
                  batch_first: bool = True,
                  return_sequences: bool = False,
                  return_state: bool = False,
-                 backend: str = "lightning.qubit"):
+                 backend: str = "default.qubit.torch",
+                 ansatz: str = "basicentangles"):
         super(QLSTM, self).__init__()
         self.n_inputs = input_size
         self.hidden_size = hidden_size
@@ -54,41 +55,72 @@ class QLSTM(nn.Module):
         self.wires_update = [f"wire_update_{i}" for i in range(self.n_qubits)]
         self.wires_output = [f"wire_output_{i}" for i in range(self.n_qubits)]
 
-        self.dev_forget = qml.device(self.backend, wires=self.wires_forget)
-        self.dev_input = qml.device(self.backend, wires=self.wires_input)
-        self.dev_update = qml.device(self.backend, wires=self.wires_update)
-        self.dev_output = qml.device(self.backend, wires=self.wires_output)
+        self.dev_forget = qml.device(self.backend, wires=self.wires_forget, torch_device='cpu')
+        self.dev_input = qml.device(self.backend, wires=self.wires_input, torch_device='cpu')
+        self.dev_update = qml.device(self.backend, wires=self.wires_update, torch_device='cpu')
+        self.dev_output = qml.device(self.backend, wires=self.wires_output, torch_device='cpu')
+
+        print(f'Choose "{ansatz}" type of ansatz')
 
         def _circuit_forget(inputs, weights):
             qml.templates.AngleEmbedding(inputs, wires=self.wires_forget)
             qml.templates.BasicEntanglerLayers(weights, wires=self.wires_forget)
             return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_forget]
 
-        self.qlayer_forget = qml.QNode(_circuit_forget, self.dev_forget, interface="torch", diff_method="adjoint")
+        def _circuit_forget_strongly(inputs, weights):
+            qml.templates.AngleEmbedding(inputs, wires=self.wires_forget)
+            qml.templates.StronglyEntanglingLayers(weights, wires=self.wires_forget)
+            return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_forget]
+
+        self.qlayer_forget = qml.QNode(_circuit_forget_strongly if ansatz == 'strongly' else _circuit_forget,
+                                       self.dev_forget, interface="torch", diff_method="backprop")
 
         def _circuit_input(inputs, weights):
             qml.templates.AngleEmbedding(inputs, wires=self.wires_input)
             qml.templates.BasicEntanglerLayers(weights, wires=self.wires_input)
             return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_input]
 
-        self.qlayer_input = qml.QNode(_circuit_input, self.dev_input, interface="torch", diff_method="adjoint")
+        def _circuit_input_strongly(inputs, weights):
+            qml.templates.AngleEmbedding(inputs, wires=self.wires_input)
+            qml.templates.StronglyEntanglingLayers(weights, wires=self.wires_input)
+            return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_input]
+
+        self.qlayer_input = qml.QNode(_circuit_input_strongly if ansatz == 'strongly' else _circuit_input,
+                                      self.dev_input, interface="torch", diff_method="backprop")
 
         def _circuit_update(inputs, weights):
             qml.templates.AngleEmbedding(inputs, wires=self.wires_update)
             qml.templates.BasicEntanglerLayers(weights, wires=self.wires_update)
             return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_update]
 
-        self.qlayer_update = qml.QNode(_circuit_update, self.dev_update, interface="torch", diff_method="adjoint")
+        def _circuit_update_strongly(inputs, weights):
+            qml.templates.AngleEmbedding(inputs, wires=self.wires_update)
+            qml.templates.StronglyEntanglingLayers(weights, wires=self.wires_update)
+            return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_update]
+
+        self.qlayer_update = qml.QNode(_circuit_update_strongly if ansatz == 'strongly' else _circuit_update,
+                                       self.dev_update, interface="torch", diff_method="backprop")
 
         def _circuit_output(inputs, weights):
             qml.templates.AngleEmbedding(inputs, wires=self.wires_output)
             qml.templates.BasicEntanglerLayers(weights, wires=self.wires_output)
             return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_output]
 
-        self.qlayer_output = qml.QNode(_circuit_output, self.dev_output, interface="torch", diff_method="adjoint")
+        def _circuit_output_strongly(inputs, weights):
+            qml.templates.AngleEmbedding(inputs, wires=self.wires_output)
+            qml.templates.StronglyEntanglingLayers(weights, wires=self.wires_output)
+            return [qml.expval(qml.PauliZ(wires=w)) for w in self.wires_output]
 
-        weight_shapes = {"weights": (n_qlayers, n_qubits)}
-        print(f"weight_shapes = (n_qlayers, n_qubits) = ({n_qlayers}, {n_qubits})")
+        self.qlayer_output = qml.QNode(_circuit_output_strongly if ansatz == 'strongly' else _circuit_output,
+                                       self.dev_output, interface="torch", diff_method="backprop")
+
+        if ansatz == 'strongly':
+            shape = qml.StronglyEntanglingLayers.shape(n_layers=self.n_qlayers, n_wires=self.n_qubits)
+            weight_shapes = {"weights": shape}
+        else:
+            weight_shapes = {"weights": (n_qlayers, n_qubits)}
+
+        # print(f"weight_shapes = (n_qlayers, n_qubits) = ({n_qlayers}, {n_qubits})")
 
         self.clayer_in = torch.nn.Linear(self.concat_size, n_qubits)
         '''
@@ -208,7 +240,7 @@ def main() -> None:
     X_train, X_test, y_train, y_test, D, df = build_dataset(cfg, hyperparams.hyperparameters)
     # Instantiate the model
     model = QLSTM(D, hidden_size=hyperparams['HIDDEN_SIZE'], n_qubits=hyperparams['N_QUBITS'],
-                  n_qlayers=hyperparams['N_QLAYERS'], batch_first=True, backend='default.qubit')
+                  n_qlayers=hyperparams['N_QLAYERS'], batch_first=True, backend='default.qubit.torch')
     # Instantiate the trainer
     trainer = QLSTM_trainer(model, name='QLSTM_test', hyperparameters=hyperparams)
     train_losses, test_losses = trainer.train(X_train, y_train, X_test, y_test)
