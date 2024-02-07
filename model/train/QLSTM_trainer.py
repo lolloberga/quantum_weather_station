@@ -78,10 +78,10 @@ class QLSTM_trainer(Trainer):
             test_losses[epoch] = test_loss.item()
 
             # Draw plot predicted vs actual (tensorboard)
-            """if (epoch + 1) % 30 == 0:
+            if (epoch + 1) % 30 == 0:
                 self.writer.add_figure(self.get_name() + ' - Predicted vs Actual',
                                        TensorboardUtils.draw_prediction_tensorboard(test_outputs, y_test, epoch),
-                                       global_step=epoch+1)"""
+                                       global_step=epoch+1)
 
         # Save the model at the end of the training (for future inference)
         self._save_model()
