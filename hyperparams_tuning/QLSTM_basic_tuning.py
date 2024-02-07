@@ -66,14 +66,14 @@ def build_dataset(cfg: ConfigParser, hyperparams: dict) -> tuple:
 
 
 def runs(hyperparams: QLSTM_Hyperparameters,
-         name: str = 'QLSTM_TUNING_test') -> None:
+         name: str = 'QLSTM_BASIC_TUNING_test') -> None:
     # Get project configurations
     cfg = ConfigParser()
     # Prepare dataset
     X_train, X_test, y_train, y_test, D, df = build_dataset(cfg, hyperparams.hyperparameters)
     # Instantiate the model
     model = QLSTM(D, hidden_size=hyperparams['HIDDEN_SIZE'], n_qubits=hyperparams['N_QUBITS'],
-                  n_qlayers=hyperparams['N_QLAYERS'], batch_first=True, backend='default.qubit')
+                  n_qlayers=hyperparams['N_QLAYERS'], batch_first=True)
     # Get the correct optimizer and criterion
     optimizer = TuningUtils.choose_optimizer(hyperparams.hyperparameters, model)
     criterion = TuningUtils.choose_criterion(hyperparams.hyperparameters)
@@ -89,16 +89,16 @@ def runs(hyperparams: QLSTM_Hyperparameters,
 
 
 def main() -> None:
-    print('Start QLSTM hyperparameters tuning')
+    print('Start QLSTM basic entangler hyperparameters tuning')
     # Get configuration space
-    epochs = [100, 200, 300]
+    epochs = [300, 200, 100]
     lr = [0.01, 0.0001, 0.001]
     h1 = [3, 7, 15]
     q_layers = [2, 5, 8]
     qubits = [4, 7, 10]
-    t = [5, 1, 10]
-    optimizer = ['adam', 'sgd']
-    criterion = ['rmse', 'l1']
+    t = [5, 1, 3, 10]
+    optimizer = ['rmsprop', 'adam', 'sgd']
+    criterion = ['rmse', 'mse', 'l1']
     hparam_names = ['NUM_EPOCHS', 'LEARNING_RATE', 'HIDDEN_SIZE', 'N_QLAYERS', 'N_QUBITS', 'T',
                     'OPTIMIZER', 'CRITERION']
     # Get all possible hyperparameters combination
@@ -112,5 +112,5 @@ def main() -> None:
     # Iterate over all possible combinations of hyperparameters
     print(f'Fine-tuning of {len(hparams)} combinations')
     for hparam in hparams:
-        runs(hparam, name=f'QLSTM_TUNING_{datetime.today().strftime("%Y%m%d_%H%M%S")}')
-    print('End of QLSTM hyperparameters tuning')
+        runs(hparam, name=f'QLSTM_BASIC_TUNING_{datetime.today().strftime("%Y%m%d_%H%M%S")}')
+    print('End of QLSTM basic hyperparameters tuning')

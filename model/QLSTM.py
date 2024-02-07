@@ -31,7 +31,7 @@ class QLSTM(nn.Module):
                  return_sequences: bool = False,
                  return_state: bool = False,
                  backend: str = "default.qubit.torch",
-                 ansatz: str = "basicentangles"):
+                 ansatz: str = "basic"):
         super(QLSTM, self).__init__()
         self.n_inputs = input_size
         self.hidden_size = hidden_size
