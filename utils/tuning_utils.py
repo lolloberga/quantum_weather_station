@@ -29,6 +29,9 @@ class TuningUtils:
             elif hyperparams['OPTIMIZER'].lower() == 'sgd':
                 optimizer = torch.optim.SGD(model.parameters(), lr=hyperparams['LEARNING_RATE'],
                                             momentum=hyperparams['MOMENTUM'], weight_decay=hyperparams['WEIGHT_DECAY'])
+            elif hyperparams['OPTIMIZER'].lower() == 'rmsprop':
+                optimizer = torch.optim.RMSprop(model.parameters(), lr=hyperparams['LEARNING_RATE'],
+                                            momentum=hyperparams['MOMENTUM'], weight_decay=hyperparams['WEIGHT_DECAY'])
             else:
                 raise ValueError(f'Unknown optimizer {hyperparams["OPTIMIZER"]}')
         return optimizer
