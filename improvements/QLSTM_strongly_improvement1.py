@@ -123,7 +123,7 @@ def main() -> None:
     epochs = [400]
     lr = [0.01]
     h1 = [15]
-    q_layers = [8]
+    q_layers = [2]
     qubits = [10]
     t = [5]
     optimizer = ['adam']
