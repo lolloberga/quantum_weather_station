@@ -120,14 +120,14 @@ def runs(hyperparams: QLSTM_Hyperparameters,
 def main() -> None:
     print('Start QLSTM strongly entangler improvement #1')
     # Get configuration space
-    epochs = [400]
-    lr = [0.01]
+    epochs = [300]
+    lr = [0.01, 0.001]
     h1 = [15]
-    q_layers = [2]
-    qubits = [10]
+    q_layers = [5, 8]
+    qubits = [7, 10]
     t = [5]
-    optimizer = ['adam']
-    criterion = ['l1']
+    optimizer = ['adam', 'rmsprop']
+    criterion = ['l1', 'rmse']
     hparam_names = ['NUM_EPOCHS', 'LEARNING_RATE', 'HIDDEN_SIZE', 'N_QLAYERS', 'N_QUBITS', 'T',
                     'OPTIMIZER', 'CRITERION']
     # Get all possible hyperparameters combination
