@@ -79,7 +79,7 @@ def main() -> None:
     hyperparams = VQR_Hyperparameters(
         {
             'TRAIN_SIZE': 0.75,
-            'LEARNING_RATE': 0.001,
+            'LEARNING_RATE': 0.01,
             'OPTIMIZER': 'adam',
             'CRITERION': 'mse',
             'NUM_EPOCHS': 200,
