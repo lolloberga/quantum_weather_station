@@ -47,7 +47,7 @@ def build_dataset_2(cfg: ConfigParser, batch_loader_size: int = 2, train_size: f
     X = df.loc[:, df.columns != "y"]
     y = df['y']
     X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, train_size=train_size,
-                                                        shuffle=False,
+                                                        shuffle=True,
                                                         random_state=RANDOM_STATE)
     # Convert to 2D PyTorch tensors
     X_train = torch.tensor(X_train, dtype=torch.float32)
