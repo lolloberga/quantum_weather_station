@@ -25,7 +25,7 @@ from utils.tensorboard_utils import TensorboardUtils
 from cross_validation.LSTM_CV import main as lstm_cv
 from cross_validation.LSTM_qlstm_CV import main as lstm_qlstm_cv
 
-ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1',
+ACTIONS = ['ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1',
            'ANN_#1', 'ANN_#2', 'VQR_NONLINEAR_MODEL', 'VQR_LINEAR_MODEL', 'VQR_NONLINEAR_TUNING', 'VQR_LINEAR_TUNING',
            'TB_READ_HP', 'LSTM_CV', 'VQR_LINEAR_TEST#1', 'VQR_NONLINEAR_TEST#1', 'VQR_LINEAR_CV', 'VQR_NONLINEAR_CV',
            'QLSTM_MODEL', 'QLSTM_BASIC_TUNING', 'QLSTM_STRONGLY_TUNING', 'LSTM_#2', 'LSTM_QLSTM_TUNING',
