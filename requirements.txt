@@ -1,9 +1,5 @@
-SQLAlchemy~=2.0
 geopy~=2.3.0
 pycryptodome~=3.15.0
-sqlalchemy-utils==0.41.1
-mysql-connector-python==8.1.0
-flask_sqlalchemy
 argparse~=1.4.0
 pyyaml==6.0.1
 tqdm==4.66.1

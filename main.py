@@ -1,6 +1,4 @@
 import argparse
-from database.load_measure import main as load_measure_table
-from database.populate_db import main as populate_db
 from model.ANN import main as ann_model
 from model.LSTM import main as lstm_model
 from model.QLSTM import main as qlstm_model
@@ -51,11 +49,7 @@ if __name__ == "__main__":
         parser.print_help()
         exit(-1)
 
-    if args.action == 'LOAD_MEASURE_TABLE':
-        load_measure_table()
-    elif args.action == 'POPULATE_DB':
-        populate_db()
-    elif args.action == 'TB_READ_HP' and args.tensorboard_folder is not None:
+    if args.action == 'TB_READ_HP' and args.tensorboard_folder is not None:
         hp = TensorboardUtils.read_hyperparameters(args.tensorboard_folder)
         print(hp)
     elif args.action == 'ANN_MODEL':
