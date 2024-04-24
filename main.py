@@ -22,14 +22,16 @@ from improvements.VQRNonLinear_improvement1 import main as vqr_nonlinear_test1
 from improvements.QLSTM_strongly_improvement1 import main as qlst_more_epochs
 from cross_validation.VQR_Linear_CV import main as vqr_linear_cv
 from cross_validation.VQR_NonLinear_CV import main as vqr_nonlinear_cv
+from cross_validation.QLSTM_CV import main as qlstm_cv
 from utils.tensorboard_utils import TensorboardUtils
 from cross_validation.LSTM_CV import main as lstm_cv
+from cross_validation.LSTM_qlstm_CV import main as lstm_qlstm_cv
 
 ACTIONS = ['LOAD_MEASURE_TABLE', 'POPULATE_DB', 'ANN_MODEL', 'LSTM_MODEL', 'ANN_TUNING', 'LSTM_TUNING', 'LSTM_#1',
            'ANN_#1', 'ANN_#2', 'VQR_NONLINEAR_MODEL', 'VQR_LINEAR_MODEL', 'VQR_NONLINEAR_TUNING', 'VQR_LINEAR_TUNING',
            'TB_READ_HP', 'LSTM_CV', 'VQR_LINEAR_TEST#1', 'VQR_NONLINEAR_TEST#1', 'VQR_LINEAR_CV', 'VQR_NONLINEAR_CV',
            'QLSTM_MODEL', 'QLSTM_BASIC_TUNING', 'QLSTM_STRONGLY_TUNING', 'LSTM_#2', 'LSTM_QLSTM_TUNING',
-           'QLSTM_STRONGLY_TEST#1']
+           'QLSTM_STRONGLY_TEST#1', 'QLSTM_CV', 'LSTM-QLSTM_CV']
 
 
 def set_mandatory_args(parser: argparse.ArgumentParser):
@@ -90,6 +92,10 @@ if __name__ == "__main__":
         vqr_linear_tuning()
     elif args.action == 'LSTM_CV':
         lstm_cv()
+    elif args.action == 'QLSTM_CV':
+        qlstm_cv()
+    elif args.action == 'LSTM-QLSTM_CV':
+        lstm_qlstm_cv()
     elif args.action == 'VQR_LINEAR_TEST#1':
         vqr_linear_test1()
     elif args.action == 'VQR_NONLINEAR_TEST#1':
