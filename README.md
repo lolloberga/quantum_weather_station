@@ -48,7 +48,7 @@ vs 2.77), despite using fewer trainable weights (66 vs 482)
 To clone the repo through HTTPS or SSH, you must have installed Git on your operating system.<br>
 Then you can open a new terminal and type the following command (this is the cloning through HTTPS):
 ```bash
-    git clone https://github.com/lolloberga/helsinki-vento-project.git
+    git clone https://github.com/lolloberga/quantum_weather_station.git
 ```
 
 If you don't have installed Git, you can simply download the repository by pressing <i>"Download ZIP"</i>.
